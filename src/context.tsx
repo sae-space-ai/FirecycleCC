@@ -91,7 +91,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [localResources, setLocalResources] = useState(resources);
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
   const [localGeoLayers, setLocalGeoLayers] = useState(geospatialLayers);
-  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>({ lat: 40.35, lng: -6.25 });
 
   const selectedFire = selectedFireId ? fireIncidents.find(f => f.id === selectedFireId) ?? null : null;
 

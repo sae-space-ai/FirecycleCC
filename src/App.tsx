@@ -189,7 +189,7 @@ function AppContent() {
           <span>|</span>
           <span>📡 {verifiedNodes.filter(n => n.status === 'online').length} Nodes Active</span>
           <span>|</span>
-          <span>Region: West Coast</span>
+          <span>Region: Las Hurdes, Cáceres</span>
         </div>
         <div className="flex items-center gap-4">
           <span>Firecycle v2.5.0</span>

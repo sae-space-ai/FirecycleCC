@@ -28,8 +28,10 @@ export default function MapView() {
   };
 
   const toSvgCoords = (lat: number, lng: number) => {
-    const x = ((lng + 130) / 20) * 800;
-    const y = ((50 - lat) / 15) * 500;
+    // Centrado en Las Hurdes (40.35, -6.25)
+    // Rango: lat 39.5 a 41.0, lng -7.0 a -5.5
+    const x = ((lng + 7.0) / 1.5) * 800;
+    const y = ((41.0 - lat) / 1.5) * 500;
     return { x: Math.max(50, Math.min(750, x)), y: Math.max(30, Math.min(470, y)) };
   };
 
@@ -71,7 +73,7 @@ export default function MapView() {
               />
             ))}
           </div>
-          <span className="text-xs text-gray-400">West Coast Region</span>
+          <span className="text-xs text-gray-400">Las Hurdes, Cáceres</span>
         </div>
       </div>
       <div className="flex-1 relative overflow-hidden">
@@ -123,12 +125,12 @@ export default function MapView() {
           <path d="M 350 30 L 350 480" stroke="#2d5a3d" strokeWidth="0.5" strokeDasharray="4,4" opacity="0.4"/>
           <path d="M 550 30 L 550 480" stroke="#2d5a3d" strokeWidth="0.5" strokeDasharray="4,4" opacity="0.4"/>
 
-          {/* State labels */}
-          <text x="240" y="110" fill="#4a7a5a" fontSize="12" fontWeight="bold" opacity="0.5">WA</text>
-          <text x="240" y="240" fill="#4a7a5a" fontSize="12" fontWeight="bold" opacity="0.5">OR</text>
-          <text x="200" y="380" fill="#4a7a5a" fontSize="12" fontWeight="bold" opacity="0.5">CA</text>
-          <text x="450" y="240" fill="#4a7a5a" fontSize="12" fontWeight="bold" opacity="0.5">NV</text>
-          <text x="600" y="380" fill="#4a7a5a" fontSize="12" fontWeight="bold" opacity="0.5">AZ</text>
+          {/* Region labels - Las Hurdes area */}
+          <text x="200" y="150" fill="#4a7a5a" fontSize="14" fontWeight="bold" opacity="0.6">LAS HURDES</text>
+          <text x="200" y="170" fill="#4a7a5a" fontSize="10" opacity="0.4">Cáceres, Extremadura</text>
+          <text x="500" y="100" fill="#4a7a5a" fontSize="11" fontWeight="bold" opacity="0.5">SALAMANCA</text>
+          <text x="500" y="350" fill="#4a7a5a" fontSize="11" fontWeight="bold" opacity="0.5">CÁCERES</text>
+          <text x="150" y="400" fill="#4a7a5a" fontSize="11" fontWeight="bold" opacity="0.5">SIERRA DE GATA</text>
 
           {/* Connection lines between fires */}
           {filteredFires.map((fire, i) => {

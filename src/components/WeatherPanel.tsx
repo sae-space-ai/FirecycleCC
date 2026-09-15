@@ -35,7 +35,7 @@ export default function WeatherPanel() {
           </div>
           <div className="text-right">
             <div className={`text-xs px-2 py-1 rounded-full border font-medium ${getFireRiskColor(weatherData.fireRisk)}`}>
-              🔥 {weatherData.fireRisk.toUpperCase()} FIRE RISK
+              🔥 RIESGO {weatherData.fireRisk.toUpperCase()}
             </div>
           </div>
         </div>
