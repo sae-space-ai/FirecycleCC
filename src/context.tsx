@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
-import { fireIncidents, resources, alerts, weatherData, stats, satelliteData, geospatialLayers, verifiedNodes, type FireIncident, type Resource, type Alert, type WeatherData, type SatelliteData, type GeospatialLayer, type VerifiedNode } from './data';
+import { fireIncidents, resources, alerts, weatherData, stats, satelliteData, geospatialLayers, verifiedNodes, territories, type FireIncident, type Resource, type Alert, type WeatherData, type SatelliteData, type GeospatialLayer, type VerifiedNode, type Territory } from './data';
 
 type ViewMode = 'dashboard' | 'map' | 'resources' | 'analytics' | 'geospatial';
 
@@ -57,6 +57,17 @@ interface AppState {
   fireSatellites: SatelliteData[];
   fireVerifiedNodes: VerifiedNode[];
   activeGeoLayers: GeospatialLayer[];
+
+  // Territory search
+  allTerritories: Territory[];
+  mapCenter: { lat: number; lng: number } | null;
+  setMapCenter: (coords: { lat: number; lng: number } | null) => void;
+  searchTerritory: (query: string) => Territory[];
+  searchByCoordinates: (lat: number, lng: number, radiusKm?: number) => {
+    territories: Territory[];
+    fires: FireIncident[];
+    nodes: VerifiedNode[];
+  };
 }
 
 interface Notification {
@@ -80,6 +91,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [localResources, setLocalResources] = useState(resources);
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
   const [localGeoLayers, setLocalGeoLayers] = useState(geospatialLayers);
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
 
   const selectedFire = selectedFireId ? fireIncidents.find(f => f.id === selectedFireId) ?? null : null;
 
@@ -161,6 +173,61 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const activeGeoLayers = localGeoLayers.filter(l => l.active);
 
+  // Territory search functions
+  const searchTerritory = useCallback((query: string): Territory[] => {
+    if (!query.trim()) return [];
+    const q = query.toLowerCase().trim();
+    
+    // Check if it's a coordinate search (format: "lat, lng" or "lat,lng")
+    const coordMatch = q.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
+    if (coordMatch) {
+      // For coordinate search, return empty and let searchByCoordinates handle it
+      return [];
+    }
+    
+    return territories.filter(t =>
+      t.name.toLowerCase().includes(q) ||
+      t.state.toLowerCase().includes(q) ||
+      t.type.toLowerCase().includes(q) ||
+      (t.description && t.description.toLowerCase().includes(q))
+    );
+  }, []);
+
+  const searchByCoordinates = useCallback((lat: number, lng: number, radiusKm: number = 100) => {
+    // Haversine formula for distance calculation
+    const getDistanceKm = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+      const R = 6371; // Earth's radius in km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    };
+
+    const nearbyTerritories = territories
+      .map(t => ({ ...t, distance: getDistanceKm(lat, lng, t.lat, t.lng) }))
+      .filter(t => t.distance <= radiusKm)
+      .sort((a, b) => a.distance - b.distance);
+
+    const nearbyFires = fireIncidents
+      .map(f => ({ ...f, distance: getDistanceKm(lat, lng, f.lat, f.lng) }))
+      .filter(f => f.distance <= radiusKm)
+      .sort((a, b) => a.distance - b.distance);
+
+    const nearbyNodes = verifiedNodes
+      .map(n => ({ ...n, distance: getDistanceKm(lat, lng, n.lat, n.lng) }))
+      .filter(n => n.distance <= radiusKm)
+      .sort((a, b) => a.distance - b.distance);
+
+    return {
+      territories: nearbyTerritories,
+      fires: nearbyFires,
+      nodes: nearbyNodes,
+    };
+  }, []);
+
   // Compute dynamic stats
   const activeFires = fireIncidents.length;
   const totalAcres = fireIncidents.reduce((sum, f) => sum + f.acres, 0);
@@ -211,6 +278,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       fireSatellites,
       fireVerifiedNodes,
       activeGeoLayers,
+      allTerritories: territories,
+      mapCenter,
+      setMapCenter,
+      searchTerritory,
+      searchByCoordinates,
     }}>
       {children}
     </AppContext.Provider>

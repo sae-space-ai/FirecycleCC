@@ -16,6 +16,7 @@ import EvacuationPanel from './components/EvacuationPanel';
 import SatellitePanel from './components/SatellitePanel';
 import GeospatialPanel from './components/GeospatialPanel';
 import VerifiedNodesPanel from './components/VerifiedNodesPanel';
+import TerritorySearch from './components/TerritorySearch';
 
 function DashboardView() {
   const { selectedFireId } = useApp();
@@ -133,17 +134,20 @@ function GeospatialView() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)]">
       {/* Map with geospatial layers */}
-      <div className="lg:col-span-5 overflow-hidden">
+      <div className="lg:col-span-4 overflow-hidden">
         <MapView />
       </div>
 
-      {/* Satellite Intelligence */}
-      <div className="lg:col-span-3 overflow-hidden">
-        <SatellitePanel />
+      {/* Territory Search */}
+      <div className="lg:col-span-3 overflow-hidden flex flex-col gap-3">
+        <TerritorySearch />
+        <div className="flex-1 overflow-hidden min-h-0">
+          <SatellitePanel />
+        </div>
       </div>
 
       {/* Geospatial Layers & Verified Nodes */}
-      <div className="lg:col-span-4 flex flex-col gap-3 overflow-hidden">
+      <div className="lg:col-span-5 flex flex-col gap-3 overflow-hidden">
         <div className="flex-1 overflow-hidden min-h-0">
           <GeospatialPanel />
         </div>

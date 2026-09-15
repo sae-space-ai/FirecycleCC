@@ -360,6 +360,56 @@ export const geospatialLayers: GeospatialLayer[] = [
   },
 ];
 
+export interface Territory {
+  id: string;
+  name: string;
+  type: 'city' | 'park' | 'forest' | 'mountain' | 'river' | 'highway' | 'region';
+  lat: number;
+  lng: number;
+  state: string;
+  population?: number;
+  description?: string;
+}
+
+export const territories: Territory[] = [
+  // Cities
+  { id: 'TER-001', name: 'Sacramento', type: 'city', lat: 38.58, lng: -121.49, state: 'CA', population: 524943, description: 'Capital of California' },
+  { id: 'TER-002', name: 'Portland', type: 'city', lat: 45.52, lng: -122.68, state: 'OR', population: 652503, description: 'Largest city in Oregon' },
+  { id: 'TER-003', name: 'Seattle', type: 'city', lat: 47.61, lng: -122.33, state: 'WA', population: 737015, description: 'Largest city in Washington' },
+  { id: 'TER-004', name: 'Reno', type: 'city', lat: 39.53, lng: -119.81, state: 'NV', population: 265845, description: 'The Biggest Little City' },
+  { id: 'TER-005', name: 'Flagstaff', type: 'city', lat: 35.20, lng: -111.65, state: 'AZ', population: 76025, description: 'Home of Northern Arizona University' },
+  
+  // National Parks & Forests
+  { id: 'TER-006', name: 'Yosemite National Park', type: 'park', lat: 37.75, lng: -119.57, state: 'CA', description: 'Famous for granite cliffs and waterfalls' },
+  { id: 'TER-007', name: 'Crater Lake National Park', type: 'park', lat: 42.94, lng: -122.10, state: 'OR', description: 'Deepest lake in the USA' },
+  { id: 'TER-008', name: 'Mount Rainier National Park', type: 'park', lat: 46.85, lng: -121.77, state: 'WA', description: 'Active volcano' },
+  { id: 'TER-009', name: 'Sierra National Forest', type: 'forest', lat: 37.35, lng: -119.25, state: 'CA', description: 'Gateway to Yosemite' },
+  { id: 'TER-010', name: 'Deschutes National Forest', type: 'forest', lat: 43.90, lng: -121.50, state: 'OR', description: 'Popular for recreation' },
+  { id: 'TER-011', name: 'Mount Baker-Snoqualmie', type: 'forest', lat: 48.15, lng: -121.65, state: 'WA', description: 'Cascades region' },
+  
+  // Mountains
+  { id: 'TER-012', name: 'Mount Whitney', type: 'mountain', lat: 36.58, lng: -118.29, state: 'CA', description: 'Highest peak in contiguous US' },
+  { id: 'TER-013', name: 'Mount Shasta', type: 'mountain', lat: 41.41, lng: -122.19, state: 'CA', description: 'Stratovolcano' },
+  { id: 'TER-014', name: 'Mount Hood', type: 'mountain', lat: 45.37, lng: -121.71, state: 'OR', description: 'Highest point in Oregon' },
+  { id: 'TER-015', name: 'Mount Rainier', type: 'mountain', lat: 46.85, lng: -121.76, state: 'WA', description: '14,411 ft summit' },
+  
+  // Rivers
+  { id: 'TER-016', name: 'Sacramento River', type: 'river', lat: 39.75, lng: -121.85, state: 'CA', description: 'Largest river in California' },
+  { id: 'TER-017', name: 'Columbia River', type: 'river', lat: 46.20, lng: -119.30, state: 'OR', description: 'Largest river in Pacific Northwest' },
+  { id: 'TER-018', name: 'Snake River', type: 'river', lat: 43.50, lng: -116.50, state: 'ID', description: 'Major tributary of Columbia' },
+  
+  // Highways
+  { id: 'TER-019', name: 'Interstate 5', type: 'highway', lat: 41.00, lng: -122.00, state: 'CA', description: 'Major north-south corridor' },
+  { id: 'TER-020', name: 'Highway 395', type: 'highway', lat: 37.80, lng: -119.40, state: 'CA', description: 'Eastern Sierra route' },
+  { id: 'TER-021', name: 'Highway 101', type: 'highway', lat: 39.00, lng: -123.50, state: 'CA', description: 'Pacific Coast Highway' },
+  
+  // Regions
+  { id: 'TER-022', name: 'Sierra Nevada', type: 'region', lat: 37.50, lng: -119.00, state: 'CA', description: 'Mountain range' },
+  { id: 'TER-023', name: 'Cascade Range', type: 'region', lat: 44.00, lng: -121.50, state: 'OR', description: 'Volcanic mountain range' },
+  { id: 'TER-024', name: 'Pacific Northwest', type: 'region', lat: 46.00, lng: -122.00, state: 'WA', description: 'Biogeographic region' },
+  { id: 'TER-025', name: 'Great Basin', type: 'region', lat: 39.50, lng: -117.00, state: 'NV', description: 'Endorheic basin' },
+];
+
 export const verifiedNodes: VerifiedNode[] = [
   {
     id: 'NODE-001',

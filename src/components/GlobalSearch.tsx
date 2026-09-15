@@ -6,6 +6,7 @@ export default function GlobalSearch() {
     globalSearchOpen, setGlobalSearchOpen,
     fires, allResources, allAlerts,
     selectFire, setViewMode, setFilterSeverity, setFilterResourceStatus,
+    searchTerritory, setMapCenter,
   } = useApp();
 
   const [query, setQuery] = useState('');
@@ -58,6 +59,9 @@ export default function GlobalSearch() {
       ).slice(0, 5)
     : [];
 
+  // Search territories
+  const territoryResults = q ? searchTerritory(q).slice(0, 5) : [];
+
   // Quick actions
   const quickActions = [
     { label: 'View Dashboard', action: () => { setViewMode('dashboard'); setGlobalSearchOpen(false); } },
@@ -71,7 +75,7 @@ export default function GlobalSearch() {
     { label: 'View Verified Nodes', action: () => { setViewMode('geospatial'); setGlobalSearchOpen(false); } },
   ].filter(a => !q || a.label.toLowerCase().includes(q));
 
-  const hasResults = fireResults.length > 0 || resourceResults.length > 0 || quickActions.length > 0;
+  const hasResults = fireResults.length > 0 || resourceResults.length > 0 || territoryResults.length > 0 || quickActions.length > 0;
 
   return (
     <div
@@ -178,6 +182,41 @@ export default function GlobalSearch() {
                       <div className="text-white text-sm">{resource.name}</div>
                       <div className="text-gray-500 text-xs capitalize">{resource.type} • {resource.status}</div>
                     </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {q && territoryResults.length > 0 && (
+            <div className="px-3 py-2">
+              <p className="text-xs text-gray-500 mb-2">Territories ({territoryResults.length})</p>
+              <div className="space-y-0.5">
+                {territoryResults.map((territory) => (
+                  <button
+                    key={territory.id}
+                    onClick={() => {
+                      setMapCenter({ lat: territory.lat, lng: territory.lng });
+                      setViewMode('map');
+                      setGlobalSearchOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors text-left"
+                  >
+                    <span className="text-lg">
+                      {territory.type === 'city' ? '🏙️' :
+                       territory.type === 'park' ? '🏞️' :
+                       territory.type === 'forest' ? '🌲' :
+                       territory.type === 'mountain' ? '⛰️' :
+                       territory.type === 'river' ? '🏞️' :
+                       territory.type === 'highway' ? '🛣️' : '🗺️'}
+                    </span>
+                    <div className="flex-1">
+                      <div className="text-white text-sm">{territory.name}</div>
+                      <div className="text-gray-500 text-xs">{territory.state} • {territory.type}</div>
+                    </div>
+                    <span className="text-xs text-gray-400 font-mono">
+                      {territory.lat.toFixed(2)}°, {territory.lng.toFixed(2)}°
+                    </span>
                   </button>
                 ))}
               </div>

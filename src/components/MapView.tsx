@@ -6,6 +6,7 @@ export default function MapView() {
     hoveredFireId, setHoveredFireId,
     selectedFire, filterSeverity, setFilterSeverity,
     setViewMode, verifiedNodes, activeGeoLayers,
+    mapCenter, setMapCenter,
   } = useApp();
 
   const getSeverityColor = (severity: string) => {
@@ -244,6 +245,76 @@ export default function MapView() {
               </g>
             );
           })}
+
+          {/* Map Center Indicator */}
+          {mapCenter && (
+            <g>
+              {(() => {
+                const coords = toSvgCoords(mapCenter.lat, mapCenter.lng);
+                return (
+                  <>
+                    {/* Pulsing circle */}
+                    <circle
+                      cx={coords.x} cy={coords.y}
+                      r="20"
+                      fill="none"
+                      stroke="#3b82f6"
+                      strokeWidth="2"
+                      opacity="0.3"
+                      className="animate-ping"
+                    />
+                    {/* Center crosshair */}
+                    <line x1={coords.x - 10} y1={coords.y} x2={coords.x + 10} y2={coords.y} stroke="#3b82f6" strokeWidth="2" />
+                    <line x1={coords.x} y1={coords.y - 10} x2={coords.x} y2={coords.y + 10} stroke="#3b82f6" strokeWidth="2" />
+                    <circle
+                      cx={coords.x} cy={coords.y}
+                      r="4"
+                      fill="#3b82f6"
+                      opacity="0.9"
+                    />
+                    {/* Label */}
+                    <rect
+                      x={coords.x + 12} y={coords.y - 12}
+                      width="90" height="20"
+                      rx="4"
+                      fill="#1f2937"
+                      stroke="#3b82f6"
+                      strokeWidth="1"
+                      opacity="0.95"
+                    />
+                    <text
+                      x={coords.x + 57} y={coords.y + 2}
+                      textAnchor="middle" fill="#93c5fd"
+                      fontSize="9" fontWeight="bold"
+                    >
+                      {mapCenter.lat.toFixed(3)}°, {mapCenter.lng.toFixed(3)}°
+                    </text>
+                    {/* Clear button */}
+                    <g
+                      onClick={() => setMapCenter(null)}
+                      className="cursor-pointer"
+                    >
+                      <rect
+                        x={coords.x + 100} y={coords.y - 12}
+                        width="20" height="20"
+                        rx="4"
+                        fill="#374151"
+                        stroke="#4b5563"
+                        strokeWidth="1"
+                      />
+                      <text
+                        x={coords.x + 110} y={coords.y + 2}
+                        textAnchor="middle" fill="#9ca3af"
+                        fontSize="10"
+                      >
+                        ✕
+                      </text>
+                    </g>
+                  </>
+                );
+              })()}
+            </g>
+          )}
 
           {/* Verified Nodes */}
           {verifiedNodes.map((node) => {
