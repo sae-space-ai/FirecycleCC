@@ -1,17 +1,26 @@
 import { useState, useEffect } from 'react';
+import { useApp } from '../context';
 
 export default function Header() {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { viewMode, setViewMode, notifications, selectedFireId, selectFire } = useApp();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
+  const navItems: { label: string; mode: 'dashboard' | 'map' | 'resources' | 'analytics' }[] = [
+    { label: 'Dashboard', mode: 'dashboard' },
+    { label: 'Map View', mode: 'map' },
+    { label: 'Resources', mode: 'resources' },
+    { label: 'Analytics', mode: 'analytics' },
+  ];
+
   return (
     <header className="bg-gray-900 border-b border-gray-700 px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => { selectFire(null); setViewMode('dashboard'); }}>
           <div className="relative">
             <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
               <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -28,21 +37,33 @@ export default function Header() {
         </div>
         <div className="h-8 w-px bg-gray-700 mx-2"></div>
         <nav className="flex items-center gap-1">
-          <button className="px-3 py-1.5 text-sm font-medium text-white bg-gray-800 rounded-md border border-gray-600">
-            Dashboard
-          </button>
-          <button className="px-3 py-1.5 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 rounded-md transition-colors">
-            Map View
-          </button>
-          <button className="px-3 py-1.5 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 rounded-md transition-colors">
-            Resources
-          </button>
-          <button className="px-3 py-1.5 text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800 rounded-md transition-colors">
-            Analytics
-          </button>
+          {navItems.map((item) => (
+            <button
+              key={item.mode}
+              onClick={() => setViewMode(item.mode)}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                viewMode === item.mode
+                  ? 'text-white bg-gray-800 border border-gray-600'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
         </nav>
       </div>
       <div className="flex items-center gap-4">
+        {/* Notification bell */}
+        <button className="relative text-gray-400 hover:text-white transition-colors">
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+          </svg>
+          {notifications.length > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+              {notifications.length}
+            </span>
+          )}
+        </button>
         <div className="flex items-center gap-2 text-sm">
           <span className="text-red-400 animate-pulse">●</span>
           <span className="text-red-400 font-medium">LIVE</span>

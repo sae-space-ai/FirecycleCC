@@ -1,6 +1,16 @@
-import { resources } from '../data';
+import { useApp } from '../context';
 
 export default function ResourcesPanel() {
+  const {
+    allResources, toggleResourceStatus,
+    selectedFireId, selectFire,
+    filterResourceStatus, setFilterResourceStatus,
+  } = useApp();
+
+  const filteredResources = filterResourceStatus
+    ? allResources.filter(r => r.status === filterResourceStatus)
+    : allResources;
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'deployed': return 'bg-green-500';
@@ -36,11 +46,6 @@ export default function ResourcesPanel() {
           </svg>
         );
       case 'aircraft':
-        return (
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-          </svg>
-        );
       case 'helicopter':
         return (
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -52,10 +57,10 @@ export default function ResourcesPanel() {
     }
   };
 
-  const deployedCount = resources.filter(r => r.status === 'deployed').length;
-  const standbyCount = resources.filter(r => r.status === 'standby').length;
-  const maintenanceCount = resources.filter(r => r.status === 'maintenance').length;
-  const transitCount = resources.filter(r => r.status === 'transit').length;
+  const deployedCount = allResources.filter(r => r.status === 'deployed').length;
+  const standbyCount = allResources.filter(r => r.status === 'standby').length;
+  const maintenanceCount = allResources.filter(r => r.status === 'maintenance').length;
+  const transitCount = allResources.filter(r => r.status === 'transit').length;
 
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 overflow-hidden h-full flex flex-col">
@@ -65,50 +70,89 @@ export default function ResourcesPanel() {
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
           </svg>
           <span className="text-white font-medium text-sm">Resource Status</span>
+          {selectedFireId && (
+            <span className="text-xs bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full">
+              Filtered by fire
+            </span>
+          )}
         </div>
-        <button className="text-gray-400 hover:text-white transition-colors text-xs">
-          Manage →
-        </button>
       </div>
 
-      {/* Status Summary */}
+      {/* Status Summary - clickable filters */}
       <div className="px-4 py-3 border-b border-gray-700 grid grid-cols-4 gap-2">
-        <div className="text-center">
+        <button
+          onClick={() => setFilterResourceStatus(filterResourceStatus === 'deployed' ? null : 'deployed')}
+          className={`text-center rounded-lg p-1 transition-all ${
+            filterResourceStatus === 'deployed' ? 'bg-green-500/10 ring-1 ring-green-500/50' : 'hover:bg-gray-700/50'
+          }`}
+        >
           <div className="text-green-400 font-bold text-lg">{deployedCount}</div>
           <div className="text-gray-400 text-xs">Deployed</div>
-        </div>
-        <div className="text-center">
+        </button>
+        <button
+          onClick={() => setFilterResourceStatus(filterResourceStatus === 'standby' ? null : 'standby')}
+          className={`text-center rounded-lg p-1 transition-all ${
+            filterResourceStatus === 'standby' ? 'bg-yellow-500/10 ring-1 ring-yellow-500/50' : 'hover:bg-gray-700/50'
+          }`}
+        >
           <div className="text-yellow-400 font-bold text-lg">{standbyCount}</div>
           <div className="text-gray-400 text-xs">Standby</div>
-        </div>
-        <div className="text-center">
+        </button>
+        <button
+          onClick={() => setFilterResourceStatus(filterResourceStatus === 'transit' ? null : 'transit')}
+          className={`text-center rounded-lg p-1 transition-all ${
+            filterResourceStatus === 'transit' ? 'bg-blue-500/10 ring-1 ring-blue-500/50' : 'hover:bg-gray-700/50'
+          }`}
+        >
           <div className="text-blue-400 font-bold text-lg">{transitCount}</div>
           <div className="text-gray-400 text-xs">Transit</div>
-        </div>
-        <div className="text-center">
+        </button>
+        <button
+          onClick={() => setFilterResourceStatus(filterResourceStatus === 'maintenance' ? null : 'maintenance')}
+          className={`text-center rounded-lg p-1 transition-all ${
+            filterResourceStatus === 'maintenance' ? 'bg-red-500/10 ring-1 ring-red-500/50' : 'hover:bg-gray-700/50'
+          }`}
+        >
           <div className="text-red-400 font-bold text-lg">{maintenanceCount}</div>
           <div className="text-gray-400 text-xs">Maint.</div>
-        </div>
+        </button>
       </div>
 
       {/* Resource List */}
       <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
-        {resources.map((resource) => (
+        {filteredResources.map((resource) => (
           <div
             key={resource.id}
-            className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-900/50 transition-colors"
+            className={`flex items-center gap-3 p-2.5 rounded-lg transition-all cursor-pointer group ${
+              selectedFireId && resource.assignedTo === selectedFireId
+                ? 'bg-orange-500/10 border border-orange-500/30'
+                : 'hover:bg-gray-900/50 border border-transparent'
+            }`}
           >
-            <div className={`w-2 h-2 rounded-full ${getStatusColor(resource.status)}`}></div>
-            <div className="text-gray-300">
+            <div className={`w-2 h-2 rounded-full ${getStatusColor(resource.status)} flex-shrink-0`}></div>
+            <div className="text-gray-300 flex-shrink-0">
               {getTypeIcon(resource.type)}
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-white text-xs font-medium truncate">{resource.name}</div>
-              <div className="text-gray-500 text-xs">
-                {resource.personnel > 0 ? `${resource.personnel} personnel` : 'N/A'}
+              <div className="flex items-center gap-2">
+                <span className="text-gray-500 text-xs">
+                  {resource.personnel > 0 ? `${resource.personnel} pers.` : 'N/A'}
+                </span>
+                {resource.assignedTo && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      selectFire(resource.assignedTo);
+                    }}
+                    className="text-orange-400/60 text-xs hover:text-orange-400 transition-colors"
+                  >
+                    → {resource.assignedTo}
+                  </button>
+                )}
               </div>
             </div>
-            <div className="text-right">
+            <div className="flex items-center gap-2">
               <span className={`text-xs px-1.5 py-0.5 rounded ${
                 resource.status === 'deployed' ? 'bg-green-500/10 text-green-400' :
                 resource.status === 'standby' ? 'bg-yellow-500/10 text-yellow-400' :
@@ -117,9 +161,28 @@ export default function ResourcesPanel() {
               }`}>
                 {getStatusLabel(resource.status)}
               </span>
+              {(resource.status === 'deployed' || resource.status === 'standby') && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleResourceStatus(resource.id);
+                  }}
+                  className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white transition-all"
+                  title="Toggle status"
+                >
+                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
         ))}
+        {filteredResources.length === 0 && (
+          <div className="text-center py-8 text-gray-500 text-sm">
+            No resources match filter
+          </div>
+        )}
       </div>
     </div>
   );

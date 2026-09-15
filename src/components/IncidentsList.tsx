@@ -1,23 +1,27 @@
-import { fireIncidents } from '../data';
+import { useApp } from '../context';
 
 export default function IncidentsList() {
-  const sortedIncidents = [...fireIncidents].sort((a, b) => {
-    const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-    return severityOrder[a.severity] - severityOrder[b.severity];
-  });
+  const {
+    fires, selectedFireId, selectFire,
+    setHoveredFireId, filterSeverity, setFilterSeverity,
+    searchQuery, setSearchQuery,
+  } = useApp();
+
+  const sortedIncidents = [...fires]
+    .filter(f => !filterSeverity || f.severity === filterSeverity)
+    .filter(f => !searchQuery || f.name.toLowerCase().includes(searchQuery.toLowerCase()) || f.location.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a, b) => {
+      const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+      return severityOrder[a.severity] - severityOrder[b.severity];
+    });
 
   const getSeverityBadge = (severity: string) => {
     switch (severity) {
-      case 'critical':
-        return 'bg-red-500/20 text-red-400 border-red-500/30';
-      case 'high':
-        return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-      case 'medium':
-        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'low':
-        return 'bg-green-500/20 text-green-400 border-green-500/30';
-      default:
-        return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+      case 'critical': return 'bg-red-500/20 text-red-400 border-red-500/30';
+      case 'high': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+      case 'medium': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      case 'low': return 'bg-green-500/20 text-green-400 border-green-500/30';
+      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
     }
   };
 
@@ -37,22 +41,69 @@ export default function IncidentsList() {
           </svg>
           <span className="text-white font-medium text-sm">Active Incidents</span>
           <span className="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded-full">
-            {fireIncidents.length}
+            {sortedIncidents.length}
           </span>
         </div>
-        <button className="text-gray-400 hover:text-white transition-colors text-xs">
-          View All →
-        </button>
       </div>
+
+      {/* Search */}
+      <div className="px-3 py-2 border-b border-gray-700/50">
+        <div className="relative">
+          <svg className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+          <input
+            type="text"
+            placeholder="Search fires..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-gray-900/50 border border-gray-600 rounded-md pl-8 pr-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 transition-colors"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        {/* Severity filter chips */}
+        <div className="flex gap-1 mt-2">
+          {['critical', 'high', 'medium', 'low'].map((sev) => (
+            <button
+              key={sev}
+              onClick={() => setFilterSeverity(filterSeverity === sev ? null : sev)}
+              className={`text-xs px-2 py-0.5 rounded-full transition-colors ${
+                filterSeverity === sev
+                  ? 'bg-orange-500/20 text-orange-400 border border-orange-500/50'
+                  : 'bg-gray-700/50 text-gray-400 hover:text-white border border-transparent'
+              }`}
+            >
+              {sev}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
         {sortedIncidents.map((fire) => (
           <div
             key={fire.id}
-            className="bg-gray-900/50 rounded-lg p-3 border border-gray-700/50 hover:border-gray-600 transition-all cursor-pointer group"
+            onClick={() => selectFire(selectedFireId === fire.id ? null : fire.id)}
+            onMouseEnter={() => setHoveredFireId(fire.id)}
+            onMouseLeave={() => setHoveredFireId(null)}
+            className={`bg-gray-900/50 rounded-lg p-3 border transition-all cursor-pointer group ${
+              selectedFireId === fire.id
+                ? 'border-orange-500/50 bg-orange-500/5 shadow-lg shadow-orange-500/5'
+                : 'border-gray-700/50 hover:border-gray-600'
+            }`}
           >
             <div className="flex items-start justify-between mb-2">
               <div>
-                <h4 className="text-white text-sm font-medium group-hover:text-orange-300 transition-colors">
+                <h4 className={`text-sm font-medium transition-colors ${
+                  selectedFireId === fire.id ? 'text-orange-300' : 'text-white group-hover:text-orange-300'
+                }`}>
                   {fire.name}
                 </h4>
                 <p className="text-gray-400 text-xs mt-0.5">{fire.location}</p>
@@ -102,6 +153,11 @@ export default function IncidentsList() {
             </div>
           </div>
         ))}
+        {sortedIncidents.length === 0 && (
+          <div className="text-center py-8 text-gray-500 text-sm">
+            No incidents match your filters
+          </div>
+        )}
       </div>
     </div>
   );

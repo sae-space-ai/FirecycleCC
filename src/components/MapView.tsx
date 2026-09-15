@@ -1,9 +1,12 @@
-import { useState } from 'react';
-import { fireIncidents, type FireIncident } from '../data';
+import { useApp } from '../context';
 
 export default function MapView() {
-  const [selectedFire, setSelectedFire] = useState<FireIncident | null>(null);
-  const [hoveredFire, setHoveredFire] = useState<string | null>(null);
+  const {
+    fires, selectedFireId, selectFire,
+    hoveredFireId, setHoveredFireId,
+    selectedFire, filterSeverity, setFilterSeverity,
+    setViewMode,
+  } = useApp();
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -23,12 +26,15 @@ export default function MapView() {
     }
   };
 
-  // Convert lat/lng to SVG coordinates (simplified projection)
   const toSvgCoords = (lat: number, lng: number) => {
     const x = ((lng + 130) / 20) * 800;
     const y = ((50 - lat) / 15) * 500;
     return { x: Math.max(50, Math.min(750, x)), y: Math.max(30, Math.min(470, y)) };
   };
+
+  const filteredFires = filterSeverity
+    ? fires.filter(f => f.severity === filterSeverity)
+    : fires;
 
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 overflow-hidden h-full flex flex-col">
@@ -38,25 +44,38 @@ export default function MapView() {
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
           </svg>
           <span className="text-white font-medium text-sm">Operational Map</span>
+          {filterSeverity && (
+            <button
+              onClick={() => setFilterSeverity(null)}
+              className="text-xs bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full hover:bg-orange-500/30 transition-colors"
+            >
+              Filter: {filterSeverity} ✕
+            </button>
+          )}
         </div>
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            {['critical', 'high', 'medium', 'low'].map((sev) => (
+              <button
+                key={sev}
+                onClick={() => setFilterSeverity(filterSeverity === sev ? null : sev)}
+                className={`w-3 h-3 rounded-full border-2 transition-all ${
+                  filterSeverity === sev ? 'scale-125' : 'opacity-60 hover:opacity-100'
+                }`}
+                style={{
+                  backgroundColor: getSeverityColor(sev),
+                  borderColor: filterSeverity === sev ? 'white' : 'transparent',
+                }}
+                title={sev}
+              />
+            ))}
+          </div>
           <span className="text-xs text-gray-400">West Coast Region</span>
-          <button className="text-gray-400 hover:text-white transition-colors">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-            </svg>
-          </button>
         </div>
       </div>
       <div className="flex-1 relative overflow-hidden">
-        {/* Map Background */}
         <svg viewBox="0 0 800 500" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-          {/* Background gradient */}
           <defs>
-            <radialGradient id="fireGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#ef4444" stopOpacity="0.3"/>
-              <stop offset="100%" stopColor="#ef4444" stopOpacity="0"/>
-            </radialGradient>
             <linearGradient id="mapBg" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#1a2332"/>
               <stop offset="100%" stopColor="#0f1923"/>
@@ -68,12 +87,18 @@ export default function MapView() {
                 <feMergeNode in="SourceGraphic"/>
               </feMerge>
             </filter>
+            <filter id="glowSelected">
+              <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
           </defs>
 
-          {/* Map background */}
           <rect width="800" height="500" fill="url(#mapBg)"/>
 
-          {/* Grid lines */}
+          {/* Grid */}
           {Array.from({ length: 20 }).map((_, i) => (
             <line key={`v-${i}`} x1={i * 40} y1="0" x2={i * 40} y2="500" stroke="#1e3a4f" strokeWidth="0.5" opacity="0.3"/>
           ))}
@@ -81,21 +106,17 @@ export default function MapView() {
             <line key={`h-${i}`} x1="0" y1={i * 40} x2="800" y2={i * 40} stroke="#1e3a4f" strokeWidth="0.5" opacity="0.3"/>
           ))}
 
-          {/* Simplified West Coast outline */}
+          {/* Coastline */}
           <path
             d="M 150 30 Q 180 60 170 100 Q 160 140 140 180 Q 130 220 150 260 Q 160 300 180 340 Q 200 380 220 420 Q 240 460 260 480"
-            fill="none"
-            stroke="#2d5a3d"
-            strokeWidth="2"
-            opacity="0.6"
+            fill="none" stroke="#2d5a3d" strokeWidth="2" opacity="0.6"
           />
           <path
             d="M 150 30 Q 200 40 250 30 Q 300 50 350 40 Q 400 60 450 50 Q 500 70 550 60 Q 600 80 650 70 L 700 80 L 700 480 L 260 480 Q 240 460 220 420 Q 200 380 180 340 Q 160 300 150 260 Q 130 220 140 180 Q 160 140 170 100 Q 180 60 150 30 Z"
-            fill="#1a3a2a"
-            opacity="0.3"
+            fill="#1a3a2a" opacity="0.3"
           />
 
-          {/* State boundaries (simplified) */}
+          {/* State boundaries */}
           <path d="M 150 180 L 700 180" stroke="#2d5a3d" strokeWidth="0.5" strokeDasharray="4,4" opacity="0.4"/>
           <path d="M 150 300 L 700 300" stroke="#2d5a3d" strokeWidth="0.5" strokeDasharray="4,4" opacity="0.4"/>
           <path d="M 350 30 L 350 480" stroke="#2d5a3d" strokeWidth="0.5" strokeDasharray="4,4" opacity="0.4"/>
@@ -108,35 +129,71 @@ export default function MapView() {
           <text x="450" y="240" fill="#4a7a5a" fontSize="12" fontWeight="bold" opacity="0.5">NV</text>
           <text x="600" y="380" fill="#4a7a5a" fontSize="12" fontWeight="bold" opacity="0.5">AZ</text>
 
+          {/* Connection lines between fires */}
+          {filteredFires.map((fire, i) => {
+            const coords = toSvgCoords(fire.lat, fire.lng);
+            return filteredFires.slice(i + 1).map((otherFire) => {
+              const otherCoords = toSvgCoords(otherFire.lat, otherFire.lng);
+              const dist = Math.sqrt(
+                Math.pow(coords.x - otherCoords.x, 2) + Math.pow(coords.y - otherCoords.y, 2)
+              );
+              if (dist > 300) return null;
+              return (
+                <line
+                  key={`${fire.id}-${otherFire.id}`}
+                  x1={coords.x} y1={coords.y}
+                  x2={otherCoords.x} y2={otherCoords.y}
+                  stroke="#374151"
+                  strokeWidth="0.5"
+                  strokeDasharray="3,3"
+                  opacity="0.4"
+                />
+              );
+            });
+          })}
+
           {/* Fire incidents */}
-          {fireIncidents.map((fire) => {
+          {filteredFires.map((fire) => {
             const coords = toSvgCoords(fire.lat, fire.lng);
             const color = getSeverityColor(fire.severity);
             const radius = Math.max(8, Math.min(30, fire.acres / 200));
-            const isSelected = selectedFire?.id === fire.id;
-            const isHovered = hoveredFire === fire.id;
+            const isSelected = selectedFireId === fire.id;
+            const isHovered = hoveredFireId === fire.id;
+            const isDimmed = filterSeverity && fire.severity !== filterSeverity;
 
             return (
               <g
                 key={fire.id}
-                onClick={() => setSelectedFire(fire)}
-                onMouseEnter={() => setHoveredFire(fire.id)}
-                onMouseLeave={() => setHoveredFire(null)}
+                onClick={() => selectFire(isSelected ? null : fire.id)}
+                onMouseEnter={() => setHoveredFireId(fire.id)}
+                onMouseLeave={() => setHoveredFireId(null)}
                 className="cursor-pointer"
+                opacity={isDimmed ? 0.3 : 1}
               >
                 {/* Fire glow */}
                 <circle
-                  cx={coords.x}
-                  cy={coords.y}
-                  r={radius * 2.5}
+                  cx={coords.x} cy={coords.y}
+                  r={radius * (isSelected ? 3.5 : 2.5)}
                   fill={color}
-                  opacity={0.1}
+                  opacity={isSelected ? 0.2 : 0.1}
                   className={getSeverityPulse(fire.severity)}
                 />
+                {/* Selection ring */}
+                {isSelected && (
+                  <circle
+                    cx={coords.x} cy={coords.y}
+                    r={radius * 2}
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeDasharray="4,4"
+                    opacity="0.8"
+                    className="animate-spin-slow"
+                  />
+                )}
                 {/* Fire ring */}
                 <circle
-                  cx={coords.x}
-                  cy={coords.y}
+                  cx={coords.x} cy={coords.y}
                   r={radius * 1.5}
                   fill="none"
                   stroke={color}
@@ -146,17 +203,15 @@ export default function MapView() {
                 />
                 {/* Fire center */}
                 <circle
-                  cx={coords.x}
-                  cy={coords.y}
+                  cx={coords.x} cy={coords.y}
                   r={isSelected || isHovered ? radius * 0.8 : radius * 0.6}
                   fill={color}
                   opacity={0.9}
-                  filter="url(#glow)"
+                  filter={isSelected ? "url(#glowSelected)" : "url(#glow)"}
                 />
                 {/* Containment arc */}
                 <circle
-                  cx={coords.x}
-                  cy={coords.y}
+                  cx={coords.x} cy={coords.y}
                   r={radius}
                   fill="none"
                   stroke={color}
@@ -169,23 +224,18 @@ export default function MapView() {
                 {(isSelected || isHovered) && (
                   <g>
                     <rect
-                      x={coords.x - 55}
-                      y={coords.y - radius - 28}
-                      width="110"
-                      height="22"
+                      x={coords.x - 60} y={coords.y - radius - 30}
+                      width="120" height="24"
                       rx="4"
                       fill="#1f2937"
-                      stroke={color}
-                      strokeWidth="1"
+                      stroke={isSelected ? 'white' : color}
+                      strokeWidth={isSelected ? 1.5 : 1}
                       opacity="0.95"
                     />
                     <text
-                      x={coords.x}
-                      y={coords.y - radius - 13}
-                      textAnchor="middle"
-                      fill="white"
-                      fontSize="10"
-                      fontWeight="bold"
+                      x={coords.x} y={coords.y - radius - 14}
+                      textAnchor="middle" fill="white"
+                      fontSize="10" fontWeight="bold"
                     >
                       {fire.name}
                     </text>
@@ -213,7 +263,7 @@ export default function MapView() {
 
         {/* Selected fire info overlay */}
         {selectedFire && (
-          <div className="absolute bottom-4 left-4 bg-gray-900/95 backdrop-blur-sm border border-gray-600 rounded-xl p-4 w-72">
+          <div className="absolute bottom-4 left-4 bg-gray-900/95 backdrop-blur-sm border border-orange-500/50 rounded-xl p-4 w-72 shadow-lg shadow-orange-500/10">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-white font-bold text-sm">{selectedFire.name}</h3>
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
@@ -251,12 +301,20 @@ export default function MapView() {
                 <p className="text-gray-200">{selectedFire.engines}</p>
               </div>
             </div>
-            <button
-              onClick={() => setSelectedFire(null)}
-              className="mt-3 text-xs text-gray-400 hover:text-white transition-colors"
-            >
-              ✕ Close
-            </button>
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={() => selectFire(null)}
+                className="flex-1 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 py-1.5 rounded-md transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => setViewMode('resources')}
+                className="flex-1 text-xs bg-orange-600 hover:bg-orange-500 text-white py-1.5 rounded-md transition-colors"
+              >
+                View Resources
+              </button>
+            </div>
           </div>
         )}
       </div>

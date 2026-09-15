@@ -1,6 +1,7 @@
-import { weatherData } from '../data';
+import { useApp } from '../context';
 
 export default function WeatherPanel() {
+  const { weather: weatherData } = useApp();
   const getFireRiskColor = (risk: string) => {
     switch (risk) {
       case 'extreme': return 'text-red-400 bg-red-500/10 border-red-500/30';
