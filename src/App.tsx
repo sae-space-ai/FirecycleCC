@@ -36,13 +36,13 @@ function DashboardView() {
           <FireDetailPanel />
         </div>
 
-        {/* Right Panel - Activity & Weather */}
-        <div className="lg:col-span-3 flex flex-col gap-4 overflow-hidden">
+        {/* Right Panel - Activity, Weather & Alerts */}
+        <div className="lg:col-span-3 flex flex-col gap-3 overflow-hidden">
           <div className="flex-shrink-0">
             <WeatherPanel />
           </div>
-          <div className="flex-1 overflow-hidden flex flex-col">
-            <ActivityFeed />
+          <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+            <AlertsPanel />
           </div>
         </div>
       </div>
@@ -52,11 +52,11 @@ function DashboardView() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)]">
       {/* Left Panel - Incidents & Evacuations */}
-      <div className="lg:col-span-3 flex flex-col gap-4 overflow-hidden">
-        <div className="flex-1 overflow-hidden">
+      <div className="lg:col-span-3 flex flex-col gap-3 overflow-hidden">
+        <div className="flex-1 overflow-hidden min-h-0">
           <IncidentsList />
         </div>
-        <div className="flex-shrink-0 max-h-[250px] overflow-hidden">
+        <div className="flex-shrink-0 max-h-[240px] overflow-hidden">
           <EvacuationPanel />
         </div>
       </div>
@@ -66,13 +66,13 @@ function DashboardView() {
         <MapView />
       </div>
 
-      {/* Right Panel - Weather, Activity & Communications */}
-      <div className="lg:col-span-4 flex flex-col gap-4 overflow-hidden">
+      {/* Right Panel - Weather, Alerts & Communications */}
+      <div className="lg:col-span-4 flex flex-col gap-3 overflow-hidden">
         <div className="flex-shrink-0">
           <WeatherPanel />
         </div>
-        <div className="grid grid-cols-2 gap-4 flex-1 overflow-hidden">
-          <ActivityFeed />
+        <div className="grid grid-cols-2 gap-3 flex-1 overflow-hidden min-h-0">
+          <AlertsPanel />
           <CommunicationsPanel />
         </div>
       </div>
@@ -81,17 +81,47 @@ function DashboardView() {
 }
 
 function MapViewPage() {
+  const { selectedFireId } = useApp();
+
   return (
-    <div className="h-[calc(100vh-220px)]">
-      <MapView />
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)]">
+      {/* Full Map */}
+      <div className={`${selectedFireId ? 'lg:col-span-9' : 'lg:col-span-12'} overflow-hidden`}>
+        <MapView />
+      </div>
+
+      {/* Side panel when fire is selected */}
+      {selectedFireId && (
+        <div className="lg:col-span-3 flex flex-col gap-3 overflow-hidden">
+          <FireDetailPanel />
+          <div className="flex-1 overflow-hidden min-h-0">
+            <ResourcesPanel />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 function ResourcesView() {
+  const { selectedFireId } = useApp();
+
   return (
-    <div className="h-[calc(100vh-220px)]">
-      <ResourcesPanel />
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)]">
+      {/* Resources Panel */}
+      <div className={`${selectedFireId ? 'lg:col-span-8' : 'lg:col-span-12'} overflow-hidden`}>
+        <ResourcesPanel />
+      </div>
+
+      {/* Side panel when fire is selected */}
+      {selectedFireId && (
+        <div className="lg:col-span-4 flex flex-col gap-3 overflow-hidden">
+          <FireDetailPanel />
+          <div className="flex-1 overflow-hidden min-h-0">
+            <CommunicationsPanel />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
