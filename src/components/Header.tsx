@@ -10,11 +10,12 @@ export default function Header() {
     return () => clearInterval(timer);
   }, []);
 
-  const navItems: { label: string; mode: 'dashboard' | 'map' | 'resources' | 'analytics' }[] = [
+  const navItems: { label: string; mode: 'dashboard' | 'map' | 'resources' | 'analytics' | 'geospatial' }[] = [
     { label: 'Dashboard', mode: 'dashboard' },
     { label: 'Map View', mode: 'map' },
     { label: 'Resources', mode: 'resources' },
     { label: 'Analytics', mode: 'analytics' },
+    { label: 'Geospatial', mode: 'geospatial' },
   ];
 
   return (

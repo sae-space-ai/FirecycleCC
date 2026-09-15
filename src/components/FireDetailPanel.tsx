@@ -4,6 +4,7 @@ export default function FireDetailPanel() {
   const {
     selectedFire, selectedFireId, selectFire,
     fireResources, fireAlerts, fires, setViewMode,
+    fireSatellites, fireVerifiedNodes,
   } = useApp();
 
   if (!selectedFire || !selectedFireId) {
@@ -211,6 +212,73 @@ export default function FireDetailPanel() {
             ))}
           </div>
         </div>
+
+        {/* Satellite Coverage */}
+        {fireSatellites.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white text-xs font-medium">Satellite Coverage</h3>
+              <button
+                onClick={() => setViewMode('geospatial')}
+                className="text-purple-400 text-xs hover:text-purple-300"
+              >
+                View All →
+              </button>
+            </div>
+            <div className="space-y-1.5">
+              {fireSatellites.slice(0, 3).map((sat) => (
+                <div key={sat.id} className="flex items-center gap-2 bg-gray-900/50 rounded-lg p-2">
+                  <span className="text-sm">
+                    {sat.type === 'thermal' ? '🔥' : sat.type === 'optical' ? '📷' : sat.type === 'sar' ? '📡' : '🌈'}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-gray-200 text-xs truncate">{sat.name}</div>
+                    <div className="text-gray-500 text-xs">{sat.hotspots} hotspots</div>
+                  </div>
+                  <span className={`text-xs px-1.5 py-0.5 rounded ${
+                    sat.confidence === 'high' ? 'bg-green-500/10 text-green-400' :
+                    sat.confidence === 'medium' ? 'bg-yellow-500/10 text-yellow-400' :
+                    'bg-red-500/10 text-red-400'
+                  }`}>
+                    {sat.confidence}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Verified Nodes */}
+        {fireVerifiedNodes.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-white text-xs font-medium">Verified Nodes</h3>
+              <span className="text-green-400 text-xs">
+                {fireVerifiedNodes.filter(n => n.status === 'online').length} online
+              </span>
+            </div>
+            <div className="space-y-1.5">
+              {fireVerifiedNodes.slice(0, 4).map((node) => (
+                <div key={node.id} className="flex items-center gap-2 bg-gray-900/50 rounded-lg p-2">
+                  <div className={`w-2 h-2 rounded-full ${
+                    node.status === 'online' ? 'bg-green-500 animate-pulse' :
+                    node.status === 'warning' ? 'bg-yellow-500' :
+                    node.status === 'offline' ? 'bg-gray-500' : 'bg-red-500'
+                  }`}></div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-gray-200 text-xs truncate">{node.name}</div>
+                    <div className="text-gray-500 text-xs capitalize">{node.type.replace('-', ' ')}</div>
+                  </div>
+                  {node.verified && (
+                    <svg className="w-3 h-3 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

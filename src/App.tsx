@@ -13,6 +13,9 @@ import ActivityFeed from './components/ActivityFeed';
 import GlobalSearch from './components/GlobalSearch';
 import CommunicationsPanel from './components/CommunicationsPanel';
 import EvacuationPanel from './components/EvacuationPanel';
+import SatellitePanel from './components/SatellitePanel';
+import GeospatialPanel from './components/GeospatialPanel';
+import VerifiedNodesPanel from './components/VerifiedNodesPanel';
 
 function DashboardView() {
   const { selectedFireId } = useApp();
@@ -126,8 +129,34 @@ function ResourcesView() {
   );
 }
 
+function GeospatialView() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)]">
+      {/* Map with geospatial layers */}
+      <div className="lg:col-span-5 overflow-hidden">
+        <MapView />
+      </div>
+
+      {/* Satellite Intelligence */}
+      <div className="lg:col-span-3 overflow-hidden">
+        <SatellitePanel />
+      </div>
+
+      {/* Geospatial Layers & Verified Nodes */}
+      <div className="lg:col-span-4 flex flex-col gap-3 overflow-hidden">
+        <div className="flex-1 overflow-hidden min-h-0">
+          <GeospatialPanel />
+        </div>
+        <div className="flex-1 overflow-hidden min-h-0">
+          <VerifiedNodesPanel />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AppContent() {
-  const { viewMode } = useApp();
+  const { viewMode, satellites, verifiedNodes } = useApp();
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col">
@@ -141,6 +170,7 @@ function AppContent() {
         {viewMode === 'map' && <MapViewPage />}
         {viewMode === 'resources' && <ResourcesView />}
         {viewMode === 'analytics' && <AnalyticsView />}
+        {viewMode === 'geospatial' && <GeospatialView />}
       </main>
 
       {/* Footer Status Bar */}
@@ -151,12 +181,14 @@ function AppContent() {
             System Online
           </span>
           <span>|</span>
-          <span>Region: West Coast</span>
+          <span>🛰️ {satellites.length} Satellites</span>
           <span>|</span>
-          <span>Last Sync: Just now</span>
+          <span>📡 {verifiedNodes.filter(n => n.status === 'online').length} Nodes Active</span>
+          <span>|</span>
+          <span>Region: West Coast</span>
         </div>
         <div className="flex items-center gap-4">
-          <span>Firecycle v2.4.1</span>
+          <span>Firecycle v2.5.0</span>
           <span>|</span>
           <span>© 2026 Firecycle Systems</span>
         </div>

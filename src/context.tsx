@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
-import { fireIncidents, resources, alerts, weatherData, stats, type FireIncident, type Resource, type Alert, type WeatherData } from './data';
+import { fireIncidents, resources, alerts, weatherData, stats, satelliteData, geospatialLayers, verifiedNodes, type FireIncident, type Resource, type Alert, type WeatherData, type SatelliteData, type GeospatialLayer, type VerifiedNode } from './data';
 
-type ViewMode = 'dashboard' | 'map' | 'resources' | 'analytics';
+type ViewMode = 'dashboard' | 'map' | 'resources' | 'analytics' | 'geospatial';
 
 interface AppState {
   // View
@@ -20,6 +20,9 @@ interface AppState {
   allAlerts: Alert[];
   weather: WeatherData;
   globalStats: typeof stats;
+  satellites: SatelliteData[];
+  geoLayers: GeospatialLayer[];
+  verifiedNodes: VerifiedNode[];
 
   // Derived
   selectedFire: FireIncident | null;
@@ -45,6 +48,15 @@ interface AppState {
   // Global search
   globalSearchOpen: boolean;
   setGlobalSearchOpen: (open: boolean) => void;
+
+  // Geospatial actions
+  toggleGeoLayer: (id: string) => void;
+  setGeoLayerOpacity: (id: string, opacity: number) => void;
+
+  // Derived geospatial
+  fireSatellites: SatelliteData[];
+  fireVerifiedNodes: VerifiedNode[];
+  activeGeoLayers: GeospatialLayer[];
 }
 
 interface Notification {
@@ -67,6 +79,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [localAlerts, setLocalAlerts] = useState(alerts);
   const [localResources, setLocalResources] = useState(resources);
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
+  const [localGeoLayers, setLocalGeoLayers] = useState(geospatialLayers);
 
   const selectedFire = selectedFireId ? fireIncidents.find(f => f.id === selectedFireId) ?? null : null;
 
@@ -125,6 +138,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setNotifications(prev => prev.filter(n => n.id !== id));
   }, []);
 
+  const toggleGeoLayer = useCallback((id: string) => {
+    setLocalGeoLayers(prev => prev.map(l =>
+      l.id === id ? { ...l, active: !l.active } : l
+    ));
+  }, []);
+
+  const setGeoLayerOpacity = useCallback((id: string, opacity: number) => {
+    setLocalGeoLayers(prev => prev.map(l =>
+      l.id === id ? { ...l, opacity } : l
+    ));
+  }, []);
+
+  // Derived geospatial data
+  const fireSatellites = selectedFireId
+    ? satelliteData.filter(s => s.fireId === selectedFireId)
+    : [];
+
+  const fireVerifiedNodes = selectedFireId
+    ? verifiedNodes.filter(n => n.fireId === selectedFireId)
+    : [];
+
+  const activeGeoLayers = localGeoLayers.filter(l => l.active);
+
   // Compute dynamic stats
   const activeFires = fireIncidents.length;
   const totalAcres = fireIncidents.reduce((sum, f) => sum + f.acres, 0);
@@ -167,6 +203,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       searchQuery, setSearchQuery,
       notifications, addNotification, dismissNotification,
       globalSearchOpen, setGlobalSearchOpen,
+      satellites: satelliteData,
+      geoLayers: localGeoLayers,
+      verifiedNodes: verifiedNodes,
+      toggleGeoLayer,
+      setGeoLayerOpacity,
+      fireSatellites,
+      fireVerifiedNodes,
+      activeGeoLayers,
     }}>
       {children}
     </AppContext.Provider>

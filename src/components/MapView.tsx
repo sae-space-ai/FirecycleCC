@@ -5,7 +5,7 @@ export default function MapView() {
     fires, selectedFireId, selectFire,
     hoveredFireId, setHoveredFireId,
     selectedFire, filterSeverity, setFilterSeverity,
-    setViewMode,
+    setViewMode, verifiedNodes, activeGeoLayers,
   } = useApp();
 
   const getSeverityColor = (severity: string) => {
@@ -240,6 +240,61 @@ export default function MapView() {
                       {fire.name}
                     </text>
                   </g>
+                )}
+              </g>
+            );
+          })}
+
+          {/* Verified Nodes */}
+          {verifiedNodes.map((node) => {
+            const coords = toSvgCoords(node.lat, node.lng);
+            const isOnline = node.status === 'online';
+            const isWarning = node.status === 'warning';
+            const isSelected = selectedFireId === node.fireId;
+
+            return (
+              <g
+                key={node.id}
+                onClick={() => node.fireId && selectFire(node.fireId)}
+                className="cursor-pointer"
+              >
+                {/* Node pulse for online nodes */}
+                {isOnline && (
+                  <circle
+                    cx={coords.x} cy={coords.y}
+                    r="8"
+                    fill={isSelected ? '#22c55e' : '#22c55e'}
+                    opacity={0.2}
+                    className="animate-ping"
+                  />
+                )}
+                {/* Node outer ring */}
+                <circle
+                  cx={coords.x} cy={coords.y}
+                  r="5"
+                  fill="none"
+                  stroke={isOnline ? '#22c55e' : isWarning ? '#eab308' : '#6b7280'}
+                  strokeWidth="1"
+                  opacity={0.6}
+                />
+                {/* Node center */}
+                <circle
+                  cx={coords.x} cy={coords.y}
+                  r="3"
+                  fill={isOnline ? '#22c55e' : isWarning ? '#eab308' : '#6b7280'}
+                  opacity={0.9}
+                />
+                {/* Connection line to fire if assigned */}
+                {node.fireId && isSelected && (
+                  <line
+                    x1={coords.x} y1={coords.y}
+                    x2={toSvgCoords(fires.find(f => f.id === node.fireId)?.lat || 0, fires.find(f => f.id === node.fireId)?.lng || 0).x}
+                    y2={toSvgCoords(fires.find(f => f.id === node.fireId)?.lat || 0, fires.find(f => f.id === node.fireId)?.lng || 0).y}
+                    stroke="#22c55e"
+                    strokeWidth="0.5"
+                    strokeDasharray="2,2"
+                    opacity={0.4}
+                  />
                 )}
               </g>
             );

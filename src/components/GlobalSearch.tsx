@@ -64,8 +64,11 @@ export default function GlobalSearch() {
     { label: 'View Map', action: () => { setViewMode('map'); setGlobalSearchOpen(false); } },
     { label: 'View Resources', action: () => { setViewMode('resources'); setGlobalSearchOpen(false); } },
     { label: 'View Analytics', action: () => { setViewMode('analytics'); setGlobalSearchOpen(false); } },
+    { label: 'View Geospatial', action: () => { setViewMode('geospatial'); setGlobalSearchOpen(false); } },
     { label: 'Show Critical Fires', action: () => { setFilterSeverity('critical'); setViewMode('map'); setGlobalSearchOpen(false); } },
     { label: 'Show Deployed Resources', action: () => { setFilterResourceStatus('deployed'); setViewMode('resources'); setGlobalSearchOpen(false); } },
+    { label: 'View Satellite Data', action: () => { setViewMode('geospatial'); setGlobalSearchOpen(false); } },
+    { label: 'View Verified Nodes', action: () => { setViewMode('geospatial'); setGlobalSearchOpen(false); } },
   ].filter(a => !q || a.label.toLowerCase().includes(q));
 
   const hasResults = fireResults.length > 0 || resourceResults.length > 0 || quickActions.length > 0;

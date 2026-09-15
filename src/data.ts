@@ -41,6 +41,43 @@ export interface WeatherData {
   condition: string;
 }
 
+export interface SatelliteData {
+  id: string;
+  name: string;
+  type: 'thermal' | 'optical' | 'sar' | 'multispectral';
+  provider: string;
+  lastPass: string;
+  nextPass: string;
+  resolution: string;
+  coverage: number;
+  hotspots: number;
+  fireId?: string;
+  confidence: 'high' | 'medium' | 'low';
+}
+
+export interface GeospatialLayer {
+  id: string;
+  name: string;
+  type: 'topography' | 'vegetation' | 'fuel-load' | 'wind-pattern' | 'evacuation-route' | 'water-source';
+  active: boolean;
+  opacity: number;
+  lastUpdated: string;
+  dataPoints: number;
+}
+
+export interface VerifiedNode {
+  id: string;
+  type: 'weather-station' | 'iot-sensor' | 'camera' | 'drone' | 'ground-crew' | 'satellite-uplink';
+  name: string;
+  lat: number;
+  lng: number;
+  status: 'online' | 'offline' | 'warning' | 'critical';
+  lastReading: string;
+  fireId?: string;
+  verified: boolean;
+  dataStream: string;
+}
+
 export const fireIncidents: FireIncident[] = [
   {
     id: 'FIRE-001',
@@ -185,3 +222,287 @@ export const stats = {
   avgContainment: 54,
   evacuations: 2,
 };
+
+export const satelliteData: SatelliteData[] = [
+  {
+    id: 'SAT-001',
+    name: 'GOES-18 West',
+    type: 'thermal',
+    provider: 'NOAA',
+    lastPass: '2026-06-16T18:30:00Z',
+    nextPass: '2026-06-16T18:45:00Z',
+    resolution: '2km',
+    coverage: 98,
+    hotspots: 12,
+    fireId: 'FIRE-001',
+    confidence: 'high',
+  },
+  {
+    id: 'SAT-002',
+    name: 'Sentinel-2A',
+    type: 'multispectral',
+    provider: 'ESA Copernicus',
+    lastPass: '2026-06-16T10:15:00Z',
+    nextPass: '2026-06-17T10:15:00Z',
+    resolution: '10m',
+    coverage: 85,
+    hotspots: 8,
+    fireId: 'FIRE-004',
+    confidence: 'high',
+  },
+  {
+    id: 'SAT-003',
+    name: 'Landsat-9',
+    type: 'optical',
+    provider: 'USGS/NASA',
+    lastPass: '2026-06-15T18:45:00Z',
+    nextPass: '2026-06-17T18:45:00Z',
+    resolution: '30m',
+    coverage: 72,
+    hotspots: 5,
+    fireId: 'FIRE-002',
+    confidence: 'medium',
+  },
+  {
+    id: 'SAT-004',
+    name: 'VIIRS SNPP',
+    type: 'thermal',
+    provider: 'NASA/NOAA',
+    lastPass: '2026-06-16T14:20:00Z',
+    nextPass: '2026-06-16T20:35:00Z',
+    resolution: '375m',
+    coverage: 95,
+    hotspots: 15,
+    fireId: 'FIRE-001',
+    confidence: 'high',
+  },
+  {
+    id: 'SAT-005',
+    name: 'Sentinel-1 SAR',
+    type: 'sar',
+    provider: 'ESA Copernicus',
+    lastPass: '2026-06-16T06:30:00Z',
+    nextPass: '2026-06-18T06:30:00Z',
+    resolution: '5m',
+    coverage: 68,
+    hotspots: 0,
+    confidence: 'medium',
+  },
+  {
+    id: 'SAT-006',
+    name: 'MODIS Terra',
+    type: 'thermal',
+    provider: 'NASA',
+    lastPass: '2026-06-16T12:10:00Z',
+    nextPass: '2026-06-17T01:30:00Z',
+    resolution: '1km',
+    coverage: 92,
+    hotspots: 9,
+    fireId: 'FIRE-006',
+    confidence: 'medium',
+  },
+];
+
+export const geospatialLayers: GeospatialLayer[] = [
+  {
+    id: 'GEO-001',
+    name: 'Topography (DEM)',
+    type: 'topography',
+    active: true,
+    opacity: 0.6,
+    lastUpdated: '2026-06-16T12:00:00Z',
+    dataPoints: 1250000,
+  },
+  {
+    id: 'GEO-002',
+    name: 'Vegetation Index (NDVI)',
+    type: 'vegetation',
+    active: true,
+    opacity: 0.7,
+    lastUpdated: '2026-06-16T10:15:00Z',
+    dataPoints: 850000,
+  },
+  {
+    id: 'GEO-003',
+    name: 'Fuel Load Model',
+    type: 'fuel-load',
+    active: true,
+    opacity: 0.5,
+    lastUpdated: '2026-06-15T18:00:00Z',
+    dataPoints: 420000,
+  },
+  {
+    id: 'GEO-004',
+    name: 'Wind Patterns',
+    type: 'wind-pattern',
+    active: true,
+    opacity: 0.4,
+    lastUpdated: '2026-06-16T18:00:00Z',
+    dataPoints: 35000,
+  },
+  {
+    id: 'GEO-005',
+    name: 'Evacuation Routes',
+    type: 'evacuation-route',
+    active: true,
+    opacity: 0.8,
+    lastUpdated: '2026-06-16T14:30:00Z',
+    dataPoints: 1250,
+  },
+  {
+    id: 'GEO-006',
+    name: 'Water Sources',
+    type: 'water-source',
+    active: false,
+    opacity: 0.6,
+    lastUpdated: '2026-06-14T08:00:00Z',
+    dataPoints: 8500,
+  },
+];
+
+export const verifiedNodes: VerifiedNode[] = [
+  {
+    id: 'NODE-001',
+    type: 'weather-station',
+    name: 'Sierra Nevada Station Alpha',
+    lat: 37.75,
+    lng: -119.45,
+    status: 'online',
+    lastReading: '2026-06-16T18:40:00Z',
+    fireId: 'FIRE-001',
+    verified: true,
+    dataStream: 'temp,humidity,wind,pressure',
+  },
+  {
+    id: 'NODE-002',
+    type: 'iot-sensor',
+    name: 'Thermal Sensor Grid T-14',
+    lat: 37.82,
+    lng: -119.52,
+    status: 'online',
+    lastReading: '2026-06-16T18:42:00Z',
+    fireId: 'FIRE-001',
+    verified: true,
+    dataStream: 'temperature,smoke,co2',
+  },
+  {
+    id: 'NODE-003',
+    type: 'camera',
+    name: 'Remote Camera RC-07',
+    lat: 37.78,
+    lng: -119.48,
+    status: 'online',
+    lastReading: '2026-06-16T18:44:00Z',
+    fireId: 'FIRE-001',
+    verified: true,
+    dataStream: 'video,thermal-imaging',
+  },
+  {
+    id: 'NODE-004',
+    type: 'drone',
+    name: 'UAV Recon Unit 3',
+    lat: 47.45,
+    lng: -121.15,
+    status: 'online',
+    lastReading: '2026-06-16T18:35:00Z',
+    fireId: 'FIRE-004',
+    verified: true,
+    dataStream: 'video,lidar,thermal',
+  },
+  {
+    id: 'NODE-005',
+    type: 'ground-crew',
+    name: 'Ground Team GT-12',
+    lat: 47.52,
+    lng: -121.22,
+    status: 'online',
+    lastReading: '2026-06-16T18:38:00Z',
+    fireId: 'FIRE-004',
+    verified: true,
+    dataStream: 'gps,status,observations',
+  },
+  {
+    id: 'NODE-006',
+    type: 'satellite-uplink',
+    name: 'Satellite Uplink SU-02',
+    lat: 40.45,
+    lng: -123.75,
+    status: 'warning',
+    lastReading: '2026-06-16T18:30:00Z',
+    fireId: 'FIRE-006',
+    verified: true,
+    dataStream: 'satellite-data,relay',
+  },
+  {
+    id: 'NODE-007',
+    type: 'weather-station',
+    name: 'Eagle Ridge Station',
+    lat: 43.18,
+    lng: -122.08,
+    status: 'online',
+    lastReading: '2026-06-16T18:41:00Z',
+    fireId: 'FIRE-002',
+    verified: true,
+    dataStream: 'temp,humidity,wind,rain',
+  },
+  {
+    id: 'NODE-008',
+    type: 'iot-sensor',
+    name: 'Air Quality Monitor AQ-05',
+    lat: 35.22,
+    lng: -111.68,
+    status: 'offline',
+    lastReading: '2026-06-16T16:20:00Z',
+    fireId: 'FIRE-005',
+    verified: true,
+    dataStream: 'pm2.5,pm10,co,o3',
+  },
+  {
+    id: 'NODE-009',
+    type: 'camera',
+    name: 'Panoramic Camera PC-03',
+    lat: 38.88,
+    lng: -115.28,
+    status: 'online',
+    lastReading: '2026-06-16T18:43:00Z',
+    fireId: 'FIRE-003',
+    verified: true,
+    dataStream: 'video,360-panorama',
+  },
+  {
+    id: 'NODE-010',
+    type: 'drone',
+    name: 'UAV Mapping Unit 7',
+    lat: 43.22,
+    lng: -122.12,
+    status: 'online',
+    lastReading: '2026-06-16T18:36:00Z',
+    fireId: 'FIRE-002',
+    verified: true,
+    dataStream: 'video,photogrammetry',
+  },
+  {
+    id: 'NODE-011',
+    type: 'ground-crew',
+    name: 'Recon Team RT-08',
+    lat: 40.52,
+    lng: -123.82,
+    status: 'online',
+    lastReading: '2026-06-16T18:39:00Z',
+    fireId: 'FIRE-006',
+    verified: true,
+    dataStream: 'gps,photos,assessments',
+  },
+  {
+    id: 'NODE-012',
+    type: 'iot-sensor',
+    name: 'Fuel Moisture Sensor FM-11',
+    lat: 37.81,
+    lng: -119.51,
+    status: 'online',
+    lastReading: '2026-06-16T18:40:00Z',
+    fireId: 'FIRE-001',
+    verified: true,
+    dataStream: 'fuel-moisture,soil-temp',
+  },
+];
