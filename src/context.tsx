@@ -41,6 +41,10 @@ interface AppState {
   notifications: Notification[];
   addNotification: (n: Omit<Notification, 'id' | 'timestamp'>) => void;
   dismissNotification: (id: string) => void;
+
+  // Global search
+  globalSearchOpen: boolean;
+  setGlobalSearchOpen: (open: boolean) => void;
 }
 
 interface Notification {
@@ -62,6 +66,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [localAlerts, setLocalAlerts] = useState(alerts);
   const [localResources, setLocalResources] = useState(resources);
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
 
   const selectedFire = selectedFireId ? fireIncidents.find(f => f.id === selectedFireId) ?? null : null;
 
@@ -161,6 +166,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       filterResourceStatus, setFilterResourceStatus,
       searchQuery, setSearchQuery,
       notifications, addNotification, dismissNotification,
+      globalSearchOpen, setGlobalSearchOpen,
     }}>
       {children}
     </AppContext.Provider>

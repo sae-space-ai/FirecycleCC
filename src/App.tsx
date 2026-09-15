@@ -8,27 +8,72 @@ import WeatherPanel from './components/WeatherPanel';
 import ResourcesPanel from './components/ResourcesPanel';
 import AnalyticsView from './components/AnalyticsView';
 import NotificationToast from './components/NotificationToast';
+import FireDetailPanel from './components/FireDetailPanel';
+import ActivityFeed from './components/ActivityFeed';
+import GlobalSearch from './components/GlobalSearch';
+import CommunicationsPanel from './components/CommunicationsPanel';
+import EvacuationPanel from './components/EvacuationPanel';
 
 function DashboardView() {
+  const { selectedFireId } = useApp();
+
+  // Layout changes based on whether a fire is selected
+  if (selectedFireId) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)]">
+        {/* Left Panel - Incidents */}
+        <div className="lg:col-span-2 overflow-hidden">
+          <IncidentsList />
+        </div>
+
+        {/* Center - Map */}
+        <div className="lg:col-span-5 overflow-hidden">
+          <MapView />
+        </div>
+
+        {/* Middle Right - Fire Detail */}
+        <div className="lg:col-span-2 overflow-hidden">
+          <FireDetailPanel />
+        </div>
+
+        {/* Right Panel - Activity & Weather */}
+        <div className="lg:col-span-3 flex flex-col gap-4 overflow-hidden">
+          <div className="flex-shrink-0">
+            <WeatherPanel />
+          </div>
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <ActivityFeed />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)]">
-      {/* Left Panel - Incidents */}
-      <div className="lg:col-span-3 overflow-hidden">
-        <IncidentsList />
+      {/* Left Panel - Incidents & Evacuations */}
+      <div className="lg:col-span-3 flex flex-col gap-4 overflow-hidden">
+        <div className="flex-1 overflow-hidden">
+          <IncidentsList />
+        </div>
+        <div className="flex-shrink-0 max-h-[250px] overflow-hidden">
+          <EvacuationPanel />
+        </div>
       </div>
 
       {/* Center - Map */}
-      <div className="lg:col-span-6 overflow-hidden">
+      <div className="lg:col-span-5 overflow-hidden">
         <MapView />
       </div>
 
-      {/* Right Panel - Alerts & Resources */}
-      <div className="lg:col-span-3 flex flex-col gap-4 overflow-hidden">
+      {/* Right Panel - Weather, Activity & Communications */}
+      <div className="lg:col-span-4 flex flex-col gap-4 overflow-hidden">
         <div className="flex-shrink-0">
           <WeatherPanel />
         </div>
-        <div className="flex-1 overflow-hidden flex flex-col">
-          <AlertsPanel />
+        <div className="grid grid-cols-2 gap-4 flex-1 overflow-hidden">
+          <ActivityFeed />
+          <CommunicationsPanel />
         </div>
       </div>
     </div>
@@ -89,6 +134,9 @@ function AppContent() {
 
       {/* Notification Toast */}
       <NotificationToast />
+
+      {/* Global Search (Command Palette) */}
+      <GlobalSearch />
     </div>
   );
 }
