@@ -145,12 +145,15 @@ export async function getActiveFires(
 ): Promise<NASAFIRMSResponse> {
   const apiKey = import.meta.env.VITE_NASA_FIRMS_MAP_KEY;
   
+  console.log('[NASA FIRMS] Iniciando petición...', { lat, lon, radiusKm, days, hasApiKey: !!apiKey, isProduction });
+  
   if (!apiKey) {
+    console.error('[NASA FIRMS] ❌ API key no configurada. Verifica VITE_NASA_FIRMS_MAP_KEY en las variables de entorno de Vercel');
     return {
       error: {
         code: 401,
         type: 'MISSING_API_KEY',
-        info: 'API key de NASA FIRMS no configurada. Añade VITE_NASA_FIRMS_MAP_KEY en .env'
+        info: 'API key de NASA FIRMS no configurada. Añade VITE_NASA_FIRMS_MAP_KEY en las variables de entorno de Vercel.'
       }
     };
   }
@@ -176,10 +179,13 @@ export async function getActiveFires(
     const baseUrl = API_URLS.nasaFirms(`area/csv/${apiKey}/${source}/${coordinates}/${days}`);
     const url = isProduction ? proxyUrl(baseUrl) : baseUrl;
 
+    console.log('[NASA FIRMS] 🌐 URL:', url.substring(0, 100) + '...');
     const response = await fetchWithTimeout(url);
+    console.log('[NASA FIRMS] ✅ Respuesta:', response.status);
     
     if (!response.ok) {
       if (response.status === 401) {
+        console.error('[NASA FIRMS] ❌ API key inválida');
         return {
           error: {
             code: 401,
@@ -192,16 +198,20 @@ export async function getActiveFires(
     }
     
     const csvText = await response.text();
+    console.log('[NASA FIRMS] 📦 CSV recibido, longitud:', csvText.length);
     
     // Si la respuesta está vacía o solo tiene el header, no hay incendios
     if (!csvText.trim() || csvText.trim().split('\n').length < 2) {
+      console.log('[NASA FIRMS] ℹ️ No hay incendios detectados');
       return { success: true, data: [] };
     }
     
     const alerts = parseFIRMSCSV(csvText);
+    console.log('[NASA FIRMS] 🔥 Incendios parseados:', alerts.length);
     
     return { success: true, data: alerts };
   } catch (error) {
+    console.error('[NASA FIRMS] ❌ Error:', error);
     return { error: handleApiError(error) };
   }
 }

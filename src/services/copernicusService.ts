@@ -87,24 +87,34 @@ async function getAccessToken(): Promise<CopernicusResponse<string>> {
   const clientId = import.meta.env.VITE_COPERNICUS_CLIENT_ID;
   const clientSecret = import.meta.env.VITE_COPERNICUS_CLIENT_SECRET;
 
+  console.log('[Copernicus OAuth] Iniciando autenticación...', { 
+    hasClientId: !!clientId, 
+    hasClientSecret: !!clientSecret,
+    isProduction 
+  });
+
   if (!clientId || !clientSecret) {
+    console.error('[Copernicus OAuth] ❌ Credenciales no configuradas. Verifica VITE_COPERNICUS_CLIENT_ID y VITE_COPERNICUS_CLIENT_SECRET en Vercel');
     return {
       error: {
         code: 401,
         type: 'MISSING_CREDENTIALS',
-        info: 'Credenciales de Copernicus no configuradas. Añade VITE_COPERNICUS_CLIENT_ID y VITE_COPERNICUS_CLIENT_SECRET en .env'
+        info: 'Credenciales de Copernicus no configuradas. Añade VITE_COPERNICUS_CLIENT_ID y VITE_COPERNICUS_CLIENT_SECRET en las variables de entorno de Vercel.'
       }
     };
   }
 
   // Si tenemos un token cacheado y aún es válido, lo usamos
   if (cachedToken && Date.now() < cachedToken.expiresAt) {
+    console.log('[Copernicus OAuth] ✅ Usando token cacheado');
     return { success: true, data: cachedToken.token };
   }
 
   try {
     const baseUrl = API_URLS.copernicusOAuth();
     const url = isProduction ? proxyUrl(baseUrl) : baseUrl;
+    
+    console.log('[Copernicus OAuth] 🌐 URL:', url);
     const response = await fetchWithTimeout(
       url,
       {
@@ -119,9 +129,11 @@ async function getAccessToken(): Promise<CopernicusResponse<string>> {
         }),
       }
     );
+    console.log('[Copernicus OAuth] ✅ Respuesta:', response.status);
 
     if (!response.ok) {
       if (response.status === 401) {
+        console.error('[Copernicus OAuth] ❌ Credenciales inválidas');
         return {
           error: {
             code: 401,
@@ -134,6 +146,7 @@ async function getAccessToken(): Promise<CopernicusResponse<string>> {
     }
 
     const tokenData: CopernicusTokenResponse = await response.json();
+    console.log('[Copernicus OAuth] 🎫 Token recibido, expira en:', tokenData.expires_in, 'segundos');
 
     // Cacheamos el token (con 5 minutos de margen)
     cachedToken = {
@@ -143,6 +156,7 @@ async function getAccessToken(): Promise<CopernicusResponse<string>> {
 
     return { success: true, data: tokenData.access_token };
   } catch (error) {
+    console.error('[Copernicus OAuth] ❌ Error:', error);
     return { error: handleApiError(error) };
   }
 }

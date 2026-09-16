@@ -65,12 +65,15 @@ function handleApiError(error: unknown): ApiLayerError {
 export async function getIpLocation(ip: string = 'check'): Promise<ApiLayerResponse<any>> {
   const apiKey = import.meta.env.VITE_IPSTACK_API_KEY;
   
+  console.log('[IPStack] Iniciando petición...', { ip, hasApiKey: !!apiKey, isProduction });
+  
   if (!apiKey) {
+    console.error('[IPStack] ❌ API key no configurada. Verifica VITE_IPSTACK_API_KEY en .env');
     return {
       error: {
         code: 401,
         type: 'MISSING_API_KEY',
-        info: 'API key de IPStack no configurada'
+        info: 'API key de IPStack no configurada. Verifica VITE_IPSTACK_API_KEY en las variables de entorno de Vercel.'
       }
     };
   }
@@ -79,20 +82,26 @@ export async function getIpLocation(ip: string = 'check'): Promise<ApiLayerRespo
     const baseUrl = API_URLS.ipstack(ip);
     const fullUrl = `${baseUrl}?access_key=${apiKey}`;
     const url = isProduction ? proxyUrl(fullUrl) : fullUrl;
+    
+    console.log('[IPStack] 🌐 URL de petición:', url);
     const response = await fetchWithTimeout(url);
+    console.log('[IPStack] ✅ Respuesta recibida:', response.status);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
     
     const data = await response.json();
+    console.log('[IPStack] 📦 Datos recibidos:', data);
     
     if (data.error) {
+      console.error('[IPStack] ❌ Error en respuesta:', data.error);
       return { error: data.error };
     }
     
     return { success: true, data };
   } catch (error) {
+    console.error('[IPStack] ❌ Error en petición:', error);
     return { error: handleApiError(error) };
   }
 }
@@ -103,7 +112,10 @@ export async function getIpLocation(ip: string = 'check'): Promise<ApiLayerRespo
 export async function geocodeAddress(address: string): Promise<ApiLayerResponse<any>> {
   const apiKey = import.meta.env.VITE_POSITIONSTACK_API_KEY;
   
+  console.log('[PositionStack] Iniciando petición...', { address, hasApiKey: !!apiKey });
+  
   if (!apiKey) {
+    console.error('[PositionStack] ❌ API key no configurada. Verifica VITE_POSITIONSTACK_API_KEY');
     return {
       error: {
         code: 401,
@@ -117,7 +129,10 @@ export async function geocodeAddress(address: string): Promise<ApiLayerResponse<
     const baseUrl = API_URLS.positionstack('forward');
     const fullUrl = `${baseUrl}?access_key=${apiKey}&query=${encodeURIComponent(address)}`;
     const url = isProduction ? proxyUrl(fullUrl) : fullUrl;
+    
+    console.log('[PositionStack] 🌐 URL:', url);
     const response = await fetchWithTimeout(url);
+    console.log('[PositionStack] ✅ Respuesta:', response.status);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -126,11 +141,13 @@ export async function geocodeAddress(address: string): Promise<ApiLayerResponse<
     const data = await response.json();
     
     if (data.error) {
+      console.error('[PositionStack] ❌ Error:', data.error);
       return { error: data.error };
     }
     
     return { success: true, data };
   } catch (error) {
+    console.error('[PositionStack] ❌ Error:', error);
     return { error: handleApiError(error) };
   }
 }
@@ -141,7 +158,10 @@ export async function geocodeAddress(address: string): Promise<ApiLayerResponse<
 export async function getCurrentWeather(location: string): Promise<ApiLayerResponse<any>> {
   const apiKey = import.meta.env.VITE_WEATHERSTACK_API_KEY;
   
+  console.log('[WeatherStack] Iniciando petición...', { location, hasApiKey: !!apiKey });
+  
   if (!apiKey) {
+    console.error('[WeatherStack] ❌ API key no configurada. Verifica VITE_WEATHERSTACK_API_KEY');
     return {
       error: {
         code: 401,
@@ -155,7 +175,10 @@ export async function getCurrentWeather(location: string): Promise<ApiLayerRespo
     const baseUrl = API_URLS.weatherstack('current');
     const fullUrl = `${baseUrl}?access_key=${apiKey}&query=${encodeURIComponent(location)}`;
     const url = isProduction ? proxyUrl(fullUrl) : fullUrl;
+    
+    console.log('[WeatherStack] 🌐 URL:', url);
     const response = await fetchWithTimeout(url);
+    console.log('[WeatherStack] ✅ Respuesta:', response.status);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -164,11 +187,13 @@ export async function getCurrentWeather(location: string): Promise<ApiLayerRespo
     const data = await response.json();
     
     if (data.error) {
+      console.error('[WeatherStack] ❌ Error:', data.error);
       return { error: data.error };
     }
     
     return { success: true, data };
   } catch (error) {
+    console.error('[WeatherStack] ❌ Error:', error);
     return { error: handleApiError(error) };
   }
 }
@@ -176,7 +201,10 @@ export async function getCurrentWeather(location: string): Promise<ApiLayerRespo
 export async function getWeatherForecast(location: string, days: number = 3): Promise<ApiLayerResponse<any>> {
   const apiKey = import.meta.env.VITE_WEATHERSTACK_API_KEY;
   
+  console.log('[WeatherStack Forecast] Iniciando petición...', { location, days, hasApiKey: !!apiKey });
+  
   if (!apiKey) {
+    console.error('[WeatherStack Forecast] ❌ API key no configurada');
     return {
       error: {
         code: 401,
