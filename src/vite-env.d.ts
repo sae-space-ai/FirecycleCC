@@ -10,6 +10,7 @@ interface ImportMetaEnv {
   readonly VITE_NASA_FIRMS_MAP_KEY: string
   readonly VITE_COPERNICUS_CLIENT_ID: string
   readonly VITE_COPERNICUS_CLIENT_SECRET: string
+  readonly VITE_MAPBOX_ACCESS_TOKEN: string
 }
 
 interface ImportMeta {

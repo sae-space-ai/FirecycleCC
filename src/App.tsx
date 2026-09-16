@@ -4,6 +4,8 @@ import LocationWidget from './components/LocationWidget';
 import WeatherWidget from './components/WeatherWidget';
 import FireAlerts from './components/FireAlerts';
 import SatelliteImagery from './components/SatelliteImagery';
+import VegetationWidget from './components/VegetationWidget';
+import MapboxMap from './components/MapboxMap';
 
 function Dashboard() {
   const { fires, allResources, satellites, verifiedNodes, selectFire } = useApp();
@@ -38,6 +40,39 @@ function Dashboard() {
         <ErrorBoundary fallback={<div className="bg-purple-900/20 border border-purple-500 rounded-lg p-4 text-purple-400 text-sm">Error en widget de imágenes satelitales</div>}>
           <SatelliteImagery />
         </ErrorBoundary>
+
+        {/* Vegetation Index (NDVI) */}
+        <ErrorBoundary fallback={<div className="bg-green-900/20 border border-green-500 rounded-lg p-4 text-green-400 text-sm">Error en widget de vegetación</div>}>
+          <VegetationWidget />
+        </ErrorBoundary>
+
+        {/* 3D Terrain Map */}
+        <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
+          <div className="px-6 py-3 border-b border-gray-700 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+              <h2 className="text-lg font-bold text-white">Mapa 3D del Terreno</h2>
+            </div>
+            <span className="text-xs text-gray-400">Las Hurdes, Cáceres</span>
+          </div>
+          <div className="h-96">
+            <ErrorBoundary fallback={
+              <div className="h-full flex items-center justify-center bg-gray-800">
+                <div className="text-center p-6">
+                  <svg className="w-16 h-16 text-gray-600 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                  </svg>
+                  <h3 className="text-gray-300 font-semibold mb-2">Mapa 3D no disponible</h3>
+                  <p className="text-gray-400 text-sm">Configura VITE_MAPBOX_ACCESS_TOKEN en .env</p>
+                </div>
+              </div>
+            }>
+              <MapboxMap className="w-full h-full" />
+            </ErrorBoundary>
+          </div>
+        </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -112,6 +147,7 @@ function Dashboard() {
             <li>✅ <strong>WeatherStack</strong> - Datos meteorológicos (activo)</li>
             <li>✅ <strong>NASA FIRMS</strong> - Detección de focos de incendio en tiempo real (activo)</li>
             <li>✅ <strong>Copernicus Sentinel Hub</strong> - Imágenes satelitales Sentinel-2 (activo)</li>
+            <li>✅ <strong>Mapbox GL JS</strong> - Mapa 3D del terreno con hillshade (activo)</li>
             <li>⏳ <strong>PositionStack</strong> - Geocoding (preparado para integrar)</li>
             <li>⏳ <strong>AviationStack</strong> - Datos de aviación (preparado para integrar)</li>
             <li>⏳ <strong>MediaStack</strong> - Noticias (preparado para integrar)</li>

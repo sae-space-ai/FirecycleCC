@@ -325,3 +325,77 @@ export async function getSentinelImage(
 export async function getLasHurdesSentinelImages(days: number = 7): Promise<CopernicusResponse<CopernicusCatalogResponse['data']>> {
   return getSentinelImages(40.35, -6.30, days);
 }
+
+// ============================================
+// NDVI (Normalized Difference Vegetation Index)
+// ============================================
+
+export interface NDVIResponse {
+  mean: number;
+  min: number;
+  max: number;
+  stDev: number;
+  timestamp: string;
+  coverage: number; // porcentaje de píxeles válidos
+}
+
+/**
+ * Obtiene el índice NDVI promedio de una zona específica
+ * NDVI = (B08 - B04) / (B08 + B04)
+ * Donde B08 = NIR (Near Infrared) y B04 = Red
+ * 
+ * Rangos NDVI:
+ * -1.0 a 0.0: Agua, nieve, nubes, suelo desnudo
+ * 0.0 a 0.2: Zona árida, suelo desnudo, zonas quemadas
+ * 0.2 a 0.4: Vegetación dispersa, arbustos
+ * 0.4 a 0.6: Vegetación moderada
+ * 0.6 a 0.8: Vegetación densa
+ * 0.8 a 1.0: Bosque muy denso, selva
+ * 
+ * NOTA: Esta es una implementación simplificada que usa datos simulados
+ * para demostración. Para producción, integrar con el endpoint de estadísticas
+ * de Sentinel Hub: https://docs.sentinel-hub.com/api/latest/stats/
+ */
+export async function getNDVI(
+  lat: number = 40.35,
+  lon: number = -6.30,
+  radiusKm: number = 5
+): Promise<CopernicusResponse<NDVIResponse>> {
+  const tokenResult = await getAccessToken();
+
+  if (tokenResult.error) {
+    return { error: tokenResult.error };
+  }
+
+  try {
+    // Simulación de datos NDVI para demostración
+    // En producción, esto se reemplazaría con una llamada real al endpoint de estadísticas
+    
+    // Generar un valor NDVI realista basado en la ubicación y fecha
+    const seed = Math.abs(Math.sin(lat * 1000 + lon * 1000 + Date.now() / 86400000));
+    const baseNDVI = 0.3 + (seed * 0.4); // Rango típico: 0.3 a 0.7
+    
+    const ndviData: NDVIResponse = {
+      mean: baseNDVI,
+      min: Math.max(-1, baseNDVI - 0.2),
+      max: Math.min(1, baseNDVI + 0.2),
+      stDev: 0.05 + (seed * 0.1),
+      timestamp: new Date().toISOString(),
+      coverage: 85 + (seed * 15), // 85% a 100% de cobertura
+    };
+
+    // Simular delay de red
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    return { success: true, data: ndviData };
+  } catch (error) {
+    return { error: handleApiError(error) };
+  }
+}
+
+/**
+ * Obtiene el NDVI de Las Hurdes específicamente
+ */
+export async function getLasHurdesNDVI(): Promise<CopernicusResponse<NDVIResponse>> {
+  return getNDVI(40.35, -6.30, 5);
+}
