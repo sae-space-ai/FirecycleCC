@@ -5,7 +5,8 @@ export default function MapView() {
     fires, selectedFireId, selectFire,
     hoveredFireId, setHoveredFireId,
     selectedFire, filterSeverity, setFilterSeverity,
-    setViewMode,
+    setViewMode, verifiedNodes, activeGeoLayers,
+    mapCenter, setMapCenter,
   } = useApp();
 
   const getSeverityColor = (severity: string) => {
@@ -27,8 +28,10 @@ export default function MapView() {
   };
 
   const toSvgCoords = (lat: number, lng: number) => {
-    const x = ((lng + 130) / 20) * 800;
-    const y = ((50 - lat) / 15) * 500;
+    // Centrado en Las Hurdes (40.35, -6.25)
+    // Rango: lat 39.5 a 41.0, lng -7.0 a -5.5
+    const x = ((lng + 7.0) / 1.5) * 800;
+    const y = ((41.0 - lat) / 1.5) * 500;
     return { x: Math.max(50, Math.min(750, x)), y: Math.max(30, Math.min(470, y)) };
   };
 
@@ -70,7 +73,7 @@ export default function MapView() {
               />
             ))}
           </div>
-          <span className="text-xs text-gray-400">West Coast Region</span>
+          <span className="text-xs text-gray-400">Las Hurdes, Cáceres</span>
         </div>
       </div>
       <div className="flex-1 relative overflow-hidden">
@@ -122,12 +125,12 @@ export default function MapView() {
           <path d="M 350 30 L 350 480" stroke="#2d5a3d" strokeWidth="0.5" strokeDasharray="4,4" opacity="0.4"/>
           <path d="M 550 30 L 550 480" stroke="#2d5a3d" strokeWidth="0.5" strokeDasharray="4,4" opacity="0.4"/>
 
-          {/* State labels */}
-          <text x="240" y="110" fill="#4a7a5a" fontSize="12" fontWeight="bold" opacity="0.5">WA</text>
-          <text x="240" y="240" fill="#4a7a5a" fontSize="12" fontWeight="bold" opacity="0.5">OR</text>
-          <text x="200" y="380" fill="#4a7a5a" fontSize="12" fontWeight="bold" opacity="0.5">CA</text>
-          <text x="450" y="240" fill="#4a7a5a" fontSize="12" fontWeight="bold" opacity="0.5">NV</text>
-          <text x="600" y="380" fill="#4a7a5a" fontSize="12" fontWeight="bold" opacity="0.5">AZ</text>
+          {/* Region labels - Las Hurdes area */}
+          <text x="200" y="150" fill="#4a7a5a" fontSize="14" fontWeight="bold" opacity="0.6">LAS HURDES</text>
+          <text x="200" y="170" fill="#4a7a5a" fontSize="10" opacity="0.4">Cáceres, Extremadura</text>
+          <text x="500" y="100" fill="#4a7a5a" fontSize="11" fontWeight="bold" opacity="0.5">SALAMANCA</text>
+          <text x="500" y="350" fill="#4a7a5a" fontSize="11" fontWeight="bold" opacity="0.5">CÁCERES</text>
+          <text x="150" y="400" fill="#4a7a5a" fontSize="11" fontWeight="bold" opacity="0.5">SIERRA DE GATA</text>
 
           {/* Connection lines between fires */}
           {filteredFires.map((fire, i) => {
@@ -240,6 +243,131 @@ export default function MapView() {
                       {fire.name}
                     </text>
                   </g>
+                )}
+              </g>
+            );
+          })}
+
+          {/* Map Center Indicator */}
+          {mapCenter && (
+            <g>
+              {(() => {
+                const coords = toSvgCoords(mapCenter.lat, mapCenter.lng);
+                return (
+                  <>
+                    {/* Pulsing circle */}
+                    <circle
+                      cx={coords.x} cy={coords.y}
+                      r="20"
+                      fill="none"
+                      stroke="#3b82f6"
+                      strokeWidth="2"
+                      opacity="0.3"
+                      className="animate-ping"
+                    />
+                    {/* Center crosshair */}
+                    <line x1={coords.x - 10} y1={coords.y} x2={coords.x + 10} y2={coords.y} stroke="#3b82f6" strokeWidth="2" />
+                    <line x1={coords.x} y1={coords.y - 10} x2={coords.x} y2={coords.y + 10} stroke="#3b82f6" strokeWidth="2" />
+                    <circle
+                      cx={coords.x} cy={coords.y}
+                      r="4"
+                      fill="#3b82f6"
+                      opacity="0.9"
+                    />
+                    {/* Label */}
+                    <rect
+                      x={coords.x + 12} y={coords.y - 12}
+                      width="90" height="20"
+                      rx="4"
+                      fill="#1f2937"
+                      stroke="#3b82f6"
+                      strokeWidth="1"
+                      opacity="0.95"
+                    />
+                    <text
+                      x={coords.x + 57} y={coords.y + 2}
+                      textAnchor="middle" fill="#93c5fd"
+                      fontSize="9" fontWeight="bold"
+                    >
+                      {mapCenter.lat.toFixed(3)}°, {mapCenter.lng.toFixed(3)}°
+                    </text>
+                    {/* Clear button */}
+                    <g
+                      onClick={() => setMapCenter(null)}
+                      className="cursor-pointer"
+                    >
+                      <rect
+                        x={coords.x + 100} y={coords.y - 12}
+                        width="20" height="20"
+                        rx="4"
+                        fill="#374151"
+                        stroke="#4b5563"
+                        strokeWidth="1"
+                      />
+                      <text
+                        x={coords.x + 110} y={coords.y + 2}
+                        textAnchor="middle" fill="#9ca3af"
+                        fontSize="10"
+                      >
+                        ✕
+                      </text>
+                    </g>
+                  </>
+                );
+              })()}
+            </g>
+          )}
+
+          {/* Verified Nodes */}
+          {verifiedNodes.map((node) => {
+            const coords = toSvgCoords(node.lat, node.lng);
+            const isOnline = node.status === 'online';
+            const isWarning = node.status === 'warning';
+            const isSelected = selectedFireId === node.fireId;
+
+            return (
+              <g
+                key={node.id}
+                onClick={() => node.fireId && selectFire(node.fireId)}
+                className="cursor-pointer"
+              >
+                {/* Node pulse for online nodes */}
+                {isOnline && (
+                  <circle
+                    cx={coords.x} cy={coords.y}
+                    r="8"
+                    fill={isSelected ? '#22c55e' : '#22c55e'}
+                    opacity={0.2}
+                    className="animate-ping"
+                  />
+                )}
+                {/* Node outer ring */}
+                <circle
+                  cx={coords.x} cy={coords.y}
+                  r="5"
+                  fill="none"
+                  stroke={isOnline ? '#22c55e' : isWarning ? '#eab308' : '#6b7280'}
+                  strokeWidth="1"
+                  opacity={0.6}
+                />
+                {/* Node center */}
+                <circle
+                  cx={coords.x} cy={coords.y}
+                  r="3"
+                  fill={isOnline ? '#22c55e' : isWarning ? '#eab308' : '#6b7280'}
+                  opacity={0.9}
+                />
+                {/* Connection line to fire if assigned */}
+                {node.fireId && isSelected && (
+                  <line
+                    x1={coords.x} y1={coords.y}
+                    x2={toSvgCoords(fires.find(f => f.id === node.fireId)?.lat || 0, fires.find(f => f.id === node.fireId)?.lng || 0).x}
+                    y2={toSvgCoords(fires.find(f => f.id === node.fireId)?.lat || 0, fires.find(f => f.id === node.fireId)?.lng || 0).y}
+                    stroke="#22c55e"
+                    strokeWidth="0.5"
+                    strokeDasharray="2,2"
+                    opacity={0.4}
+                  />
                 )}
               </g>
             );

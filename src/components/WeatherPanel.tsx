@@ -1,7 +1,8 @@
 import { useApp } from '../context';
 
 export default function WeatherPanel() {
-  const { weather: weatherData } = useApp();
+  const { weather: weatherData, fires, selectFire, setViewMode } = useApp();
+
   const getFireRiskColor = (risk: string) => {
     switch (risk) {
       case 'extreme': return 'text-red-400 bg-red-500/10 border-red-500/30';
@@ -13,13 +14,18 @@ export default function WeatherPanel() {
     }
   };
 
+  // Fires most affected by current weather
+  const weatherAffectedFires = fires
+    .filter(f => f.severity === 'critical' || f.severity === 'high')
+    .slice(0, 2);
+
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-700 flex items-center gap-2">
         <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
           <path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-1 16.95h2V19.5h-2v2.95zm-7.45-3.91l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z"/>
         </svg>
-        <span className="text-white font-medium text-sm">Weather Conditions</span>
+        <span className="text-white font-medium text-sm">Weather & Risk</span>
       </div>
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
@@ -29,7 +35,7 @@ export default function WeatherPanel() {
           </div>
           <div className="text-right">
             <div className={`text-xs px-2 py-1 rounded-full border font-medium ${getFireRiskColor(weatherData.fireRisk)}`}>
-              🔥 {weatherData.fireRisk.toUpperCase()} FIRE RISK
+              🔥 RIESGO {weatherData.fireRisk.toUpperCase()}
             </div>
           </div>
         </div>
@@ -56,6 +62,28 @@ export default function WeatherPanel() {
             <div className="text-gray-400 text-xs">Very High</div>
           </div>
         </div>
+
+        {/* Weather impact on fires */}
+        {weatherAffectedFires.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-gray-700/50">
+            <p className="text-xs text-gray-400 mb-2">⚠ Weather Impact</p>
+            <div className="space-y-1.5">
+              {weatherAffectedFires.map((fire) => (
+                <button
+                  key={fire.id}
+                  onClick={() => { selectFire(fire.id); setViewMode('dashboard'); }}
+                  className="w-full flex items-center gap-2 text-left hover:bg-gray-700/30 rounded-md p-1.5 transition-colors"
+                >
+                  <div className={`w-1.5 h-1.5 rounded-full ${
+                    fire.severity === 'critical' ? 'bg-red-500' : 'bg-orange-500'
+                  }`}></div>
+                  <span className="text-xs text-gray-300 flex-1 truncate">{fire.name}</span>
+                  <span className="text-xs text-red-400">Wind risk ↑</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

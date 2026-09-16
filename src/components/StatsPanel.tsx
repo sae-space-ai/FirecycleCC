@@ -1,7 +1,7 @@
 import { useApp } from '../context';
 
 export default function StatsPanel() {
-  const { globalStats, setViewMode, setFilterSeverity } = useApp();
+  const { globalStats, setViewMode, setFilterSeverity, satellites, verifiedNodes, activeGeoLayers } = useApp();
 
   const statCards = [
     {
@@ -84,23 +84,85 @@ export default function StatsPanel() {
     },
   ];
 
+  const secondaryStats = [
+    {
+      label: 'Satellites',
+      value: satellites.length,
+      icon: '🛰️',
+      color: 'text-purple-400',
+      bgColor: 'bg-purple-500/10',
+      borderColor: 'border-purple-500/30',
+      onClick: () => setViewMode('geospatial' as any),
+    },
+    {
+      label: 'Hotspots Detected',
+      value: satellites.reduce((sum, s) => sum + s.hotspots, 0),
+      icon: '🔥',
+      color: 'text-orange-400',
+      bgColor: 'bg-orange-500/10',
+      borderColor: 'border-orange-500/30',
+      onClick: () => setViewMode('geospatial' as any),
+    },
+    {
+      label: 'Verified Nodes',
+      value: verifiedNodes.filter(n => n.status === 'online').length,
+      icon: '📡',
+      color: 'text-green-400',
+      bgColor: 'bg-green-500/10',
+      borderColor: 'border-green-500/30',
+      onClick: () => setViewMode('geospatial' as any),
+    },
+    {
+      label: 'Geo Layers',
+      value: activeGeoLayers.length,
+      icon: '🗺️',
+      color: 'text-cyan-400',
+      bgColor: 'bg-cyan-500/10',
+      borderColor: 'border-cyan-500/30',
+      onClick: () => setViewMode('geospatial' as any),
+    },
+  ];
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-      {statCards.map((stat, index) => (
-        <div
-          key={index}
-          onClick={stat.onClick}
-          className={`bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border ${stat.borderColor} transition-all hover:scale-105 cursor-pointer hover:shadow-lg hover:shadow-black/20`}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className={`${stat.color}`}>{stat.icon}</span>
-            <span className={`${stat.bgColor} ${stat.color} text-xs font-medium px-2 py-0.5 rounded-full`}>
-              {stat.label}
-            </span>
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {statCards.map((stat, index) => (
+          <div
+            key={index}
+            onClick={stat.onClick}
+            className={`bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border ${stat.borderColor} transition-all hover:scale-105 cursor-pointer hover:shadow-lg hover:shadow-black/20`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className={`${stat.color}`}>{stat.icon}</span>
+              <span className={`${stat.bgColor} ${stat.color} text-xs font-medium px-2 py-0.5 rounded-full`}>
+                {stat.label}
+              </span>
+            </div>
+            <div className="text-2xl font-bold text-white mt-1">{stat.value}</div>
           </div>
-          <div className="text-2xl font-bold text-white mt-1">{stat.value}</div>
-        </div>
-      ))}
+        ))}
+      </div>
+
+      {/* Geospatial & Satellite Stats Row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {secondaryStats.map((stat, index) => (
+          <div
+            key={index}
+            onClick={stat.onClick}
+            className={`bg-gray-800/30 backdrop-blur-sm rounded-lg p-3 border ${stat.borderColor} transition-all hover:scale-105 cursor-pointer hover:shadow-lg hover:shadow-black/20`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{stat.icon}</span>
+                <div>
+                  <div className={`text-lg font-bold ${stat.color}`}>{stat.value}</div>
+                  <div className="text-gray-400 text-xs">{stat.label}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
