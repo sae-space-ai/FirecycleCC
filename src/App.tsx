@@ -3,6 +3,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import LocationWidget from './components/LocationWidget';
 import WeatherWidget from './components/WeatherWidget';
 import FireAlerts from './components/FireAlerts';
+import SatelliteImagery from './components/SatelliteImagery';
 
 function Dashboard() {
   const { fires, allResources, satellites, verifiedNodes, selectFire } = useApp();
@@ -31,6 +32,11 @@ function Dashboard() {
         {/* NASA FIRMS - Fire Alerts */}
         <ErrorBoundary fallback={<div className="bg-red-900/20 border border-red-500 rounded-lg p-4 text-red-400 text-sm">Error en widget de alertas de incendio</div>}>
           <FireAlerts />
+        </ErrorBoundary>
+
+        {/* Copernicus Sentinel Hub - Satellite Imagery */}
+        <ErrorBoundary fallback={<div className="bg-purple-900/20 border border-purple-500 rounded-lg p-4 text-purple-400 text-sm">Error en widget de imágenes satelitales</div>}>
+          <SatelliteImagery />
         </ErrorBoundary>
 
         {/* Stats Grid */}
@@ -105,6 +111,7 @@ function Dashboard() {
             <li>✅ <strong>IPStack</strong> - Geolocalización por IP (activo)</li>
             <li>✅ <strong>WeatherStack</strong> - Datos meteorológicos (activo)</li>
             <li>✅ <strong>NASA FIRMS</strong> - Detección de focos de incendio en tiempo real (activo)</li>
+            <li>✅ <strong>Copernicus Sentinel Hub</strong> - Imágenes satelitales Sentinel-2 (activo)</li>
             <li>⏳ <strong>PositionStack</strong> - Geocoding (preparado para integrar)</li>
             <li>⏳ <strong>AviationStack</strong> - Datos de aviación (preparado para integrar)</li>
             <li>⏳ <strong>MediaStack</strong> - Noticias (preparado para integrar)</li>

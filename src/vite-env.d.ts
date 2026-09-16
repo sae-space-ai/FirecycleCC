@@ -8,6 +8,8 @@ interface ImportMetaEnv {
   readonly VITE_MEDIASTACK_API_KEY: string
   readonly VITE_COUNTRYLAYER_API_KEY: string
   readonly VITE_NASA_FIRMS_MAP_KEY: string
+  readonly VITE_COPERNICUS_CLIENT_ID: string
+  readonly VITE_COPERNICUS_CLIENT_SECRET: string
 }
 
 interface ImportMeta {

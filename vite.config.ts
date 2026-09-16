@@ -34,6 +34,16 @@ export default defineConfig({
         target: 'https://api.countrylayer.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/countrylayer/, '')
+      },
+      '/api/nasa-firms': {
+        target: 'https://firms.modaps.eosdis.nasa.gov',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/nasa-firms/, '')
+      },
+      '/api/copernicus': {
+        target: 'https://sh.dataspace.copernicus.eu',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/copernicus/, '')
       }
     }
   }

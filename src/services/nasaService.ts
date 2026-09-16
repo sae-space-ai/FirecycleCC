@@ -171,7 +171,7 @@ export async function getActiveFires(
     // Usar VIIRS_SNPP_NRT (más reciente y preciso)
     const source = 'VIIRS_SNPP_NRT';
     
-    const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${apiKey}/${source}/${coordinates}/${days}`;
+    const url = `/api/nasa-firms/api/area/csv/${apiKey}/${source}/${coordinates}/${days}`;
 
     const response = await fetchWithTimeout(url);
     
