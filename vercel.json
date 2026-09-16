@@ -1,8 +1,46 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "framework": "vite",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    },
+    {
+      "src": "api/**/*.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/apilayer/(.*)",
+      "dest": "/api/apilayer/$1"
+    },
+    {
+      "src": "/api/nasa-firms/(.*)",
+      "dest": "/api/nasa-firms/$1"
+    },
+    {
+      "src": "/api/copernicus/(.*)",
+      "dest": "/api/copernicus/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_IPSTACK_API_KEY": "@ipstack-api-key",
+    "VITE_POSITIONSTACK_API_KEY": "@positionstack-api-key",
+    "VITE_WEATHERSTACK_API_KEY": "@weatherstack-api-key",
+    "VITE_AVIATIONSTACK_API_KEY": "@aviationstack-api-key",
+    "VITE_MEDIASTACK_API_KEY": "@mediastack-api-key",
+    "VITE_COUNTRYLAYER_API_KEY": "@countrylayer-api-key",
+    "VITE_NASA_FIRMS_MAP_KEY": "@nasa-firms-map-key",
+    "VITE_COPERNICUS_CLIENT_ID": "@copernicus-client-id",
+    "VITE_COPERNICUS_CLIENT_SECRET": "@copernicus-client-secret",
+    "VITE_MAPBOX_ACCESS_TOKEN": "@mapbox-access-token"
+  }
 }

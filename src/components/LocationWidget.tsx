@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getIpLocation } from '../services/apiLayerService';
+import { API_URLS } from '../utils/apiUrls';
 
 interface LocationData {
   ip: string;

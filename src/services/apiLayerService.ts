@@ -1,6 +1,8 @@
 // apiLayerService.ts - Servicio centralizado para APIs de APILayer
 // Con manejo robusto de errores, timeouts y retries
 
+import { API_URLS } from '../utils/apiUrls';
+
 interface ApiLayerError {
   code: number;
   type: string;
@@ -74,8 +76,9 @@ export async function getIpLocation(ip: string = 'check'): Promise<ApiLayerRespo
   }
 
   try {
+    const url = API_URLS.ipstack(ip);
     const response = await fetchWithTimeout(
-      `/api/ipstack/${ip}?access_key=${apiKey}`
+      `${url}?access_key=${apiKey}`
     );
     
     if (!response.ok) {
@@ -111,8 +114,9 @@ export async function geocodeAddress(address: string): Promise<ApiLayerResponse<
   }
 
   try {
+    const url = API_URLS.positionstack('forward');
     const response = await fetchWithTimeout(
-      `/api/positionstack/forward?access_key=${apiKey}&query=${encodeURIComponent(address)}`
+      `${url}?access_key=${apiKey}&query=${encodeURIComponent(address)}`
     );
     
     if (!response.ok) {
@@ -148,8 +152,9 @@ export async function getCurrentWeather(location: string): Promise<ApiLayerRespo
   }
 
   try {
+    const url = API_URLS.weatherstack('current');
     const response = await fetchWithTimeout(
-      `/api/weatherstack/current?access_key=${apiKey}&query=${encodeURIComponent(location)}`
+      `${url}?access_key=${apiKey}&query=${encodeURIComponent(location)}`
     );
     
     if (!response.ok) {
@@ -182,8 +187,9 @@ export async function getWeatherForecast(location: string, days: number = 3): Pr
   }
 
   try {
+    const url = API_URLS.weatherstack('forecast');
     const response = await fetchWithTimeout(
-      `/api/weatherstack/forecast?access_key=${apiKey}&query=${encodeURIComponent(location)}&forecast_days=${days}`
+      `${url}?access_key=${apiKey}&query=${encodeURIComponent(location)}&forecast_days=${days}`
     );
     
     if (!response.ok) {
