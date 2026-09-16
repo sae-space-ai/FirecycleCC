@@ -6,6 +6,7 @@ import FireAlerts from './components/FireAlerts';
 import SatelliteImagery from './components/SatelliteImagery';
 import VegetationWidget from './components/VegetationWidget';
 import MapboxMap from './components/MapboxMap';
+import './utils/diagnoseAPIs'; // Cargar utilidades de diagnóstico
 
 function Dashboard() {
   const { fires, allResources, satellites, verifiedNodes, selectFire } = useApp();

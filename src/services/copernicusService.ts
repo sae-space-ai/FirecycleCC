@@ -172,9 +172,12 @@ export async function getSentinelImages(
   lon: number = -6.30,
   days: number = 7
 ): Promise<CopernicusResponse<CopernicusCatalogResponse['data']>> {
+  console.log('[Copernicus Sentinel] Iniciando petición...', { lat, lon, days });
+  
   const tokenResult = await getAccessToken();
 
   if (tokenResult.error) {
+    console.error('[Copernicus Sentinel] ❌ Error al obtener token:', tokenResult.error);
     return { error: tokenResult.error };
   }
 
@@ -197,6 +200,8 @@ export async function getSentinelImages(
 
     const baseUrl = API_URLS.copernicus('catalog/1.0.0/search');
     const url = isProduction ? proxyUrl(baseUrl) : baseUrl;
+    
+    console.log('[Copernicus Sentinel] 🌐 URL:', url);
     const response = await fetchWithTimeout(
       url,
       {
@@ -213,15 +218,18 @@ export async function getSentinelImages(
         }),
       }
     );
+    console.log('[Copernicus Sentinel] ✅ Respuesta:', response.status);
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     const catalogData: CopernicusCatalogResponse = await response.json();
+    console.log('[Copernicus Sentinel] 📦 Imágenes encontradas:', catalogData.data?.length || 0);
 
     return { success: true, data: catalogData.data };
   } catch (error) {
+    console.error('[Copernicus Sentinel] ❌ Error:', error);
     return { error: handleApiError(error) };
   }
 }
@@ -383,9 +391,12 @@ export async function getNDVI(
   lon: number = -6.30,
   radiusKm: number = 5
 ): Promise<CopernicusResponse<NDVIResponse>> {
+  console.log('[Copernicus NDVI] Iniciando petición...', { lat, lon, radiusKm });
+  
   const tokenResult = await getAccessToken();
 
   if (tokenResult.error) {
+    console.error('[Copernicus NDVI] ❌ Error al obtener token:', tokenResult.error);
     return { error: tokenResult.error };
   }
 
@@ -406,11 +417,15 @@ export async function getNDVI(
       coverage: 85 + (seed * 15), // 85% a 100% de cobertura
     };
 
+    console.log('[Copernicus NDVI] 📊 Datos NDVI generados:', ndviData);
+
     // Simular delay de red
     await new Promise(resolve => setTimeout(resolve, 1000));
 
+    console.log('[Copernicus NDVI] ✅ NDVI retornado exitosamente');
     return { success: true, data: ndviData };
   } catch (error) {
+    console.error('[Copernicus NDVI] ❌ Error:', error);
     return { error: handleApiError(error) };
   }
 }
