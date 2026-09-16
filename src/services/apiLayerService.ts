@@ -1,7 +1,7 @@
 // apiLayerService.ts - Servicio centralizado para APIs de APILayer
 // Con manejo robusto de errores, timeouts y retries
 
-import { API_URLS } from '../utils/apiUrls';
+import { API_URLS, proxyUrl, isProduction } from '../utils/apiUrls';
 
 interface ApiLayerError {
   code: number;
@@ -76,10 +76,10 @@ export async function getIpLocation(ip: string = 'check'): Promise<ApiLayerRespo
   }
 
   try {
-    const url = API_URLS.ipstack(ip);
-    const response = await fetchWithTimeout(
-      `${url}?access_key=${apiKey}`
-    );
+    const baseUrl = API_URLS.ipstack(ip);
+    const fullUrl = `${baseUrl}?access_key=${apiKey}`;
+    const url = isProduction ? proxyUrl(fullUrl) : fullUrl;
+    const response = await fetchWithTimeout(url);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -114,10 +114,10 @@ export async function geocodeAddress(address: string): Promise<ApiLayerResponse<
   }
 
   try {
-    const url = API_URLS.positionstack('forward');
-    const response = await fetchWithTimeout(
-      `${url}?access_key=${apiKey}&query=${encodeURIComponent(address)}`
-    );
+    const baseUrl = API_URLS.positionstack('forward');
+    const fullUrl = `${baseUrl}?access_key=${apiKey}&query=${encodeURIComponent(address)}`;
+    const url = isProduction ? proxyUrl(fullUrl) : fullUrl;
+    const response = await fetchWithTimeout(url);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -152,10 +152,10 @@ export async function getCurrentWeather(location: string): Promise<ApiLayerRespo
   }
 
   try {
-    const url = API_URLS.weatherstack('current');
-    const response = await fetchWithTimeout(
-      `${url}?access_key=${apiKey}&query=${encodeURIComponent(location)}`
-    );
+    const baseUrl = API_URLS.weatherstack('current');
+    const fullUrl = `${baseUrl}?access_key=${apiKey}&query=${encodeURIComponent(location)}`;
+    const url = isProduction ? proxyUrl(fullUrl) : fullUrl;
+    const response = await fetchWithTimeout(url);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -187,10 +187,10 @@ export async function getWeatherForecast(location: string, days: number = 3): Pr
   }
 
   try {
-    const url = API_URLS.weatherstack('forecast');
-    const response = await fetchWithTimeout(
-      `${url}?access_key=${apiKey}&query=${encodeURIComponent(location)}&forecast_days=${days}`
-    );
+    const baseUrl = API_URLS.weatherstack('forecast');
+    const fullUrl = `${baseUrl}?access_key=${apiKey}&query=${encodeURIComponent(location)}&forecast_days=${days}`;
+    const url = isProduction ? proxyUrl(fullUrl) : fullUrl;
+    const response = await fetchWithTimeout(url);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -230,9 +230,10 @@ export async function getFlights(params: { dep_iata?: string; arr_iata?: string;
       ...Object.fromEntries(Object.entries(params).filter(([_, v]) => v !== undefined))
     });
     
-    const response = await fetchWithTimeout(
-      `/api/aviationstack/flights?${queryParams.toString()}`
-    );
+    const baseUrl = API_URLS.aviationstack('flights');
+    const fullUrl = `${baseUrl}?${queryParams.toString()}`;
+    const url = isProduction ? proxyUrl(fullUrl) : fullUrl;
+    const response = await fetchWithTimeout(url);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -272,9 +273,10 @@ export async function getNews(params: { keywords?: string; languages?: string; l
       ...Object.fromEntries(Object.entries(params).filter(([_, v]) => v !== undefined))
     });
     
-    const response = await fetchWithTimeout(
-      `/api/mediastack/news?${queryParams.toString()}`
-    );
+    const baseUrl = API_URLS.mediastack('news');
+    const fullUrl = `${baseUrl}?${queryParams.toString()}`;
+    const url = isProduction ? proxyUrl(fullUrl) : fullUrl;
+    const response = await fetchWithTimeout(url);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -314,9 +316,10 @@ export async function getCountries(params: { codes?: string; fields?: string } =
       ...Object.fromEntries(Object.entries(params).filter(([_, v]) => v !== undefined))
     });
     
-    const response = await fetchWithTimeout(
-      `/api/countrylayer/all?${queryParams.toString()}`
-    );
+    const baseUrl = API_URLS.countrylayer('all');
+    const fullUrl = `${baseUrl}?${queryParams.toString()}`;
+    const url = isProduction ? proxyUrl(fullUrl) : fullUrl;
+    const response = await fetchWithTimeout(url);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);

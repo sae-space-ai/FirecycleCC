@@ -1,46 +1,37 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
+      "source": "/api/proxy",
+      "destination": "/api/proxy.js"
     },
     {
-      "src": "api/**/*.ts",
-      "use": "@vercel/node"
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
     }
   ],
-  "routes": [
+  "headers": [
     {
-      "src": "/api/apilayer/(.*)",
-      "dest": "/api/apilayer/$1"
-    },
-    {
-      "src": "/api/nasa-firms/(.*)",
-      "dest": "/api/nasa-firms/$1"
-    },
-    {
-      "src": "/api/copernicus/(.*)",
-      "dest": "/api/copernicus/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
     }
   ],
-  "env": {
-    "VITE_IPSTACK_API_KEY": "@ipstack-api-key",
-    "VITE_POSITIONSTACK_API_KEY": "@positionstack-api-key",
-    "VITE_WEATHERSTACK_API_KEY": "@weatherstack-api-key",
-    "VITE_AVIATIONSTACK_API_KEY": "@aviationstack-api-key",
-    "VITE_MEDIASTACK_API_KEY": "@mediastack-api-key",
-    "VITE_COUNTRYLAYER_API_KEY": "@countrylayer-api-key",
-    "VITE_NASA_FIRMS_MAP_KEY": "@nasa-firms-map-key",
-    "VITE_COPERNICUS_CLIENT_ID": "@copernicus-client-id",
-    "VITE_COPERNICUS_CLIENT_SECRET": "@copernicus-client-secret",
-    "VITE_MAPBOX_ACCESS_TOKEN": "@mapbox-access-token"
+  "functions": {
+    "api/proxy.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
   }
 }

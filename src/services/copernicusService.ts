@@ -1,7 +1,7 @@
 // Copernicus Sentinel Hub Service
 // Documentación: https://docs.sentinel-hub.com/api/latest/
 
-import { API_URLS } from '../utils/apiUrls';
+import { API_URLS, proxyUrl, isProduction } from '../utils/apiUrls';
 
 interface CopernicusTokenResponse {
   access_token: string;
@@ -103,7 +103,8 @@ async function getAccessToken(): Promise<CopernicusResponse<string>> {
   }
 
   try {
-    const url = API_URLS.copernicusOAuth();
+    const baseUrl = API_URLS.copernicusOAuth();
+    const url = isProduction ? proxyUrl(baseUrl) : baseUrl;
     const response = await fetchWithTimeout(
       url,
       {
@@ -180,7 +181,8 @@ export async function getSentinelImages(
       lat + latOffset,
     ];
 
-    const url = API_URLS.copernicus('catalog/1.0.0/search');
+    const baseUrl = API_URLS.copernicus('catalog/1.0.0/search');
+    const url = isProduction ? proxyUrl(baseUrl) : baseUrl;
     const response = await fetchWithTimeout(
       url,
       {
@@ -257,7 +259,8 @@ export async function getSentinelImage(
       }
     `;
 
-    const url = API_URLS.copernicus('process');
+    const baseUrl = API_URLS.copernicus('process');
+    const url = isProduction ? proxyUrl(baseUrl) : baseUrl;
     const response = await fetchWithTimeout(
       url,
       {

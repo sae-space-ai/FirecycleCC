@@ -1,7 +1,7 @@
 // NASA FIRMS Service - Fire Information for Resource Management System
 // Documentación: https://firms.modasp.eosdis.nasa.gov/api/
 
-import { API_URLS } from '../utils/apiUrls';
+import { API_URLS, proxyUrl, isProduction } from '../utils/apiUrls';
 
 interface NASAFIRMSResponse {
   success?: boolean;
@@ -173,7 +173,8 @@ export async function getActiveFires(
     // Usar VIIRS_SNPP_NRT (más reciente y preciso)
     const source = 'VIIRS_SNPP_NRT';
     
-    const url = API_URLS.nasaFirms(`area/csv/${apiKey}/${source}/${coordinates}/${days}`);
+    const baseUrl = API_URLS.nasaFirms(`area/csv/${apiKey}/${source}/${coordinates}/${days}`);
+    const url = isProduction ? proxyUrl(baseUrl) : baseUrl;
 
     const response = await fetchWithTimeout(url);
     
