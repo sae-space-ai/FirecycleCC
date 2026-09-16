@@ -7,6 +7,7 @@ interface ImportMetaEnv {
   readonly VITE_AVIATIONSTACK_API_KEY: string
   readonly VITE_MEDIASTACK_API_KEY: string
   readonly VITE_COUNTRYLAYER_API_KEY: string
+  readonly VITE_NASA_FIRMS_MAP_KEY: string
 }
 
 interface ImportMeta {
