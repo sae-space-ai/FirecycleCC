@@ -1,4 +1,5 @@
 import { AppProvider, useApp } from './context';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import Header from './components/Header';
 import StatsPanel from './components/StatsPanel';
 import MapView from './components/MapView';
@@ -21,32 +22,24 @@ import TerritorySearch from './components/TerritorySearch';
 function DashboardView() {
   const { selectedFireId } = useApp();
 
-  // Layout changes based on whether a fire is selected
   if (selectedFireId) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)]">
-        {/* Left Panel - Incidents */}
         <div className="lg:col-span-2 overflow-hidden">
-          <IncidentsList />
+          <ErrorBoundary><IncidentsList /></ErrorBoundary>
         </div>
-
-        {/* Center - Map */}
         <div className="lg:col-span-5 overflow-hidden">
-          <MapView />
+          <ErrorBoundary><MapView /></ErrorBoundary>
         </div>
-
-        {/* Middle Right - Fire Detail */}
         <div className="lg:col-span-2 overflow-hidden">
-          <FireDetailPanel />
+          <ErrorBoundary><FireDetailPanel /></ErrorBoundary>
         </div>
-
-        {/* Right Panel - Activity, Weather & Alerts */}
         <div className="lg:col-span-3 flex flex-col gap-3 overflow-hidden">
           <div className="flex-shrink-0">
-            <WeatherPanel />
+            <ErrorBoundary><WeatherPanel /></ErrorBoundary>
           </div>
           <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-            <AlertsPanel />
+            <ErrorBoundary><AlertsPanel /></ErrorBoundary>
           </div>
         </div>
       </div>
@@ -55,29 +48,24 @@ function DashboardView() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)]">
-      {/* Left Panel - Incidents & Evacuations */}
       <div className="lg:col-span-3 flex flex-col gap-3 overflow-hidden">
         <div className="flex-1 overflow-hidden min-h-0">
-          <IncidentsList />
+          <ErrorBoundary><IncidentsList /></ErrorBoundary>
         </div>
         <div className="flex-shrink-0 max-h-[240px] overflow-hidden">
-          <EvacuationPanel />
+          <ErrorBoundary><EvacuationPanel /></ErrorBoundary>
         </div>
       </div>
-
-      {/* Center - Map */}
       <div className="lg:col-span-5 overflow-hidden">
-        <MapView />
+        <ErrorBoundary><MapView /></ErrorBoundary>
       </div>
-
-      {/* Right Panel - Weather, Alerts & Communications */}
       <div className="lg:col-span-4 flex flex-col gap-3 overflow-hidden">
         <div className="flex-shrink-0">
-          <WeatherPanel />
+          <ErrorBoundary><WeatherPanel /></ErrorBoundary>
         </div>
         <div className="grid grid-cols-2 gap-3 flex-1 overflow-hidden min-h-0">
-          <AlertsPanel />
-          <CommunicationsPanel />
+          <ErrorBoundary><AlertsPanel /></ErrorBoundary>
+          <ErrorBoundary><CommunicationsPanel /></ErrorBoundary>
         </div>
       </div>
     </div>
@@ -89,17 +77,14 @@ function MapViewPage() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)]">
-      {/* Full Map */}
       <div className={`${selectedFireId ? 'lg:col-span-9' : 'lg:col-span-12'} overflow-hidden`}>
-        <MapView />
+        <ErrorBoundary><MapView /></ErrorBoundary>
       </div>
-
-      {/* Side panel when fire is selected */}
       {selectedFireId && (
         <div className="lg:col-span-3 flex flex-col gap-3 overflow-hidden">
-          <FireDetailPanel />
+          <ErrorBoundary><FireDetailPanel /></ErrorBoundary>
           <div className="flex-1 overflow-hidden min-h-0">
-            <ResourcesPanel />
+            <ErrorBoundary><ResourcesPanel /></ErrorBoundary>
           </div>
         </div>
       )}
@@ -112,17 +97,14 @@ function ResourcesView() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)]">
-      {/* Resources Panel */}
       <div className={`${selectedFireId ? 'lg:col-span-8' : 'lg:col-span-12'} overflow-hidden`}>
-        <ResourcesPanel />
+        <ErrorBoundary><ResourcesPanel /></ErrorBoundary>
       </div>
-
-      {/* Side panel when fire is selected */}
       {selectedFireId && (
         <div className="lg:col-span-4 flex flex-col gap-3 overflow-hidden">
-          <FireDetailPanel />
+          <ErrorBoundary><FireDetailPanel /></ErrorBoundary>
           <div className="flex-1 overflow-hidden min-h-0">
-            <CommunicationsPanel />
+            <ErrorBoundary><CommunicationsPanel /></ErrorBoundary>
           </div>
         </div>
       )}
@@ -133,26 +115,21 @@ function ResourcesView() {
 function GeospatialView() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-220px)]">
-      {/* Map with geospatial layers */}
       <div className="lg:col-span-4 overflow-hidden">
-        <MapView />
+        <ErrorBoundary><MapView /></ErrorBoundary>
       </div>
-
-      {/* Territory Search */}
       <div className="lg:col-span-3 overflow-hidden flex flex-col gap-3">
-        <TerritorySearch />
+        <ErrorBoundary><TerritorySearch /></ErrorBoundary>
         <div className="flex-1 overflow-hidden min-h-0">
-          <SatellitePanel />
+          <ErrorBoundary><SatellitePanel /></ErrorBoundary>
         </div>
       </div>
-
-      {/* Geospatial Layers & Verified Nodes */}
       <div className="lg:col-span-5 flex flex-col gap-3 overflow-hidden">
         <div className="flex-1 overflow-hidden min-h-0">
-          <GeospatialPanel />
+          <ErrorBoundary><GeospatialPanel /></ErrorBoundary>
         </div>
         <div className="flex-1 overflow-hidden min-h-0">
-          <VerifiedNodesPanel />
+          <ErrorBoundary><VerifiedNodesPanel /></ErrorBoundary>
         </div>
       </div>
     </div>
@@ -164,32 +141,34 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col">
-      <Header />
+      <ErrorBoundary fallback={<div className="bg-gray-900 p-4 text-red-400">Error en Header</div>}>
+        <Header />
+      </ErrorBoundary>
+      
       <main className="flex-1 p-4 space-y-4 overflow-hidden">
-        {/* Stats Row */}
-        <StatsPanel />
+        <ErrorBoundary fallback={<div className="bg-gray-800 p-4 text-red-400">Error en Stats</div>}>
+          <StatsPanel />
+        </ErrorBoundary>
 
-        {/* Main Content based on view mode */}
         {viewMode === 'dashboard' && <DashboardView />}
         {viewMode === 'map' && <MapViewPage />}
         {viewMode === 'resources' && <ResourcesView />}
-        {viewMode === 'analytics' && <AnalyticsView />}
+        {viewMode === 'analytics' && <ErrorBoundary><AnalyticsView /></ErrorBoundary>}
         {viewMode === 'geospatial' && <GeospatialView />}
       </main>
 
-      {/* Footer Status Bar */}
       <footer className="bg-gray-900 border-t border-gray-700 px-6 py-2 flex items-center justify-between text-xs text-gray-400">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-            System Online
+            Sistema Online
           </span>
           <span>|</span>
-          <span>🛰️ {satellites.length} Satellites</span>
+          <span>🛰️ {satellites.length} Satélites</span>
           <span>|</span>
-          <span>📡 {verifiedNodes.filter(n => n.status === 'online').length} Nodes Active</span>
+          <span>📡 {verifiedNodes.filter(n => n.status === 'online').length} Nodos Activos</span>
           <span>|</span>
-          <span>Region: Las Hurdes, Cáceres</span>
+          <span>Región: Las Hurdes, Cáceres</span>
         </div>
         <div className="flex items-center gap-4">
           <span>Firecycle v2.5.0</span>
@@ -198,19 +177,36 @@ function AppContent() {
         </div>
       </footer>
 
-      {/* Notification Toast */}
-      <NotificationToast />
+      <ErrorBoundary>
+        <NotificationToast />
+      </ErrorBoundary>
 
-      {/* Global Search (Command Palette) */}
-      <GlobalSearch />
+      <ErrorBoundary>
+        <GlobalSearch />
+      </ErrorBoundary>
     </div>
   );
 }
 
 export default function App() {
   return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
+    <ErrorBoundary fallback={
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="bg-red-900/20 border border-red-500 rounded-lg p-8 text-center">
+          <h1 className="text-red-400 text-2xl font-bold mb-4">Error Crítico</h1>
+          <p className="text-red-300">La aplicación no pudo inicializarse.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors"
+          >
+            Recargar Página
+          </button>
+        </div>
+      </div>
+    }>
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
+    </ErrorBoundary>
   );
 }
