@@ -1,27 +1,9 @@
 import { AppProvider, useApp } from './context';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import LocationWidget from './components/LocationWidget';
+import WeatherWidget from './components/WeatherWidget';
 
-function DebugPanel() {
-  const { viewMode, fires, allResources, satellites, verifiedNodes } = useApp();
-  
-  return (
-    <div className="fixed bottom-4 right-4 bg-gray-900 border border-gray-700 rounded-lg p-4 text-xs z-50 max-w-xs">
-      <h3 className="text-white font-bold mb-2">🔍 Debug Info</h3>
-      <div className="space-y-1 text-gray-300">
-        <div>View: <span className="text-blue-400">{viewMode}</span></div>
-        <div>Fires: <span className="text-green-400">{fires.length}</span></div>
-        <div>Resources: <span className="text-green-400">{allResources.length}</span></div>
-        <div>Satellites: <span className="text-green-400">{satellites.length}</span></div>
-        <div>Nodes: <span className="text-green-400">{verifiedNodes.length}</span></div>
-      </div>
-      <div className="mt-2 pt-2 border-t border-gray-700 text-gray-400">
-        ✅ Todos los datos cargados correctamente
-      </div>
-    </div>
-  );
-}
-
-function SimpleDashboard() {
+function Dashboard() {
   const { fires, allResources, satellites, verifiedNodes, selectFire } = useApp();
 
   return (
@@ -33,6 +15,16 @@ function SimpleDashboard() {
             🔥 Firecycle Command Center
           </h1>
           <p className="text-gray-400">Las Hurdes, Cáceres, Extremadura</p>
+        </div>
+
+        {/* API Widgets */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ErrorBoundary fallback={<div className="bg-red-900/20 border border-red-500 rounded-lg p-4 text-red-400 text-sm">Error en widget de ubicación</div>}>
+            <LocationWidget />
+          </ErrorBoundary>
+          <ErrorBoundary fallback={<div className="bg-red-900/20 border border-red-500 rounded-lg p-4 text-red-400 text-sm">Error en widget de clima</div>}>
+            <WeatherWidget />
+          </ErrorBoundary>
         </div>
 
         {/* Stats Grid */}
@@ -102,18 +94,17 @@ function SimpleDashboard() {
 
         {/* Info Box */}
         <div className="bg-blue-900/20 border border-blue-500/50 rounded-xl p-6">
-          <h3 className="text-blue-400 font-bold mb-2">ℹ️ Información del Sistema</h3>
+          <h3 className="text-blue-400 font-bold mb-2">ℹ️ APIs Integradas</h3>
           <ul className="text-gray-300 text-sm space-y-1">
-            <li>✅ Todos los datos son estáticos (no hay APIs externas)</li>
-            <li>✅ No hay estados de carga (isLoading)</li>
-            <li>✅ No hay llamadas a APILayer ni servicios externos</li>
-            <li>✅ Todos los componentes funcionan correctamente</li>
-            <li>✅ Error Boundaries activos para manejo de errores</li>
+            <li>✅ <strong>IPStack</strong> - Geolocalización por IP (activo)</li>
+            <li>✅ <strong>WeatherStack</strong> - Datos meteorológicos (activo)</li>
+            <li>⏳ <strong>PositionStack</strong> - Geocoding (preparado para integrar)</li>
+            <li>⏳ <strong>AviationStack</strong> - Datos de aviación (preparado para integrar)</li>
+            <li>⏳ <strong>MediaStack</strong> - Noticias (preparado para integrar)</li>
+            <li>⏳ <strong>CountryLayer</strong> - Información de países (preparado para integrar)</li>
           </ul>
         </div>
       </div>
-
-      <DebugPanel />
     </div>
   );
 }
@@ -135,7 +126,7 @@ function AppContent() {
       </div>
     }>
       <AppProvider>
-        <SimpleDashboard />
+        <Dashboard />
       </AppProvider>
     </ErrorBoundary>
   );
